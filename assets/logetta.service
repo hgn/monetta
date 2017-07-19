@@ -1,0 +1,9 @@
+[Unit]
+Description=HippoD Service to Collect Test Data
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/share/hippod/run.py -f /etc/hippod/hippod-configuration.json
+
+[Install]
+WantedBy=multi-user.target

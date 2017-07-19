@@ -1,0 +1,35 @@
+{
+	"common" : {
+		"logging" : "debug",
+		"host"    : "0.0.0.0",
+		"port"    : 80
+	},
+
+	"achievements_validity_lifetime" : {
+		"achievements" : [ 30, "days" ],
+		"achievements_anchored" : [ 2, "months" ]
+	},
+
+	"db" : {
+		"path" : "/var/lib/hippod"
+	},
+
+	"reports" : {
+		"title" : "Test Report",
+		"driver" : "pandoc",
+		"export_formats" : [ "PDF" ],
+		"pandoc_pdf_tex_template_path" : "/usr/share/hippod/assets/pandoc-templates/pdf-template-modern.tex"
+	},
+
+	"userdb" : {
+		"method" : "file",
+		"ldap_credentials" : {
+			"server" : "ldap://<MY_LDAP_SERVER>.<DOMAIN>",
+			"port" : "389",
+			"bind" : "ou=MAIN,dc=<EXAMPLE>,dc=net",
+			"username" : "<USER>",
+			"password" : "<PASSWORD>"
+		}
+	}
+
+}
