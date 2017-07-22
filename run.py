@@ -13,12 +13,9 @@ import time
 
 from aiohttp import web
 
-from httpd import log
-from httpd import api_ping
-from httpd import api_ws
-from httpd import catch_index
-from httpd import index
-from httpd import page_ws
+from httpd.utils import log
+from httpd.handler import api_ping
+from httpd.handler import ws_journal
 
 
 
@@ -38,19 +35,36 @@ def set_config_defaults(app):
 
 
 def init_aiohttp(conf):
-    app = web.Application() #Dmiddlewares=[catch_index.IndexMiddleware()])
+    app = web.Application()
     app["CONF"] = conf
     return app
 
+async def handle_journal(request):
+    root = request.app['path-root']
+    full = os.path.join(root, "httpd/assets/webpage/journal.html")
+    with open(full, 'r') as content_file:
+        content = str.encode(content_file.read())
+        return web.Response(body=content, content_type='text/html')
+
+async def handle_index(request):
+    raise web.HTTPFound('journal.html')
+    root = request.app['path-root']
+    full = os.path.join(root, "httpd/assets/webpage/journal.html")
+    with open(full, 'r') as content_file:
+        content = str.encode(content_file.read())
+        return web.Response(body=content, content_type='text/html')
 
 def setup_routes(app, conf):
-    app.router.add_route('GET', '/api/v1/ping', api_ping.handle)
-    app.router.add_route('GET', '/ws', api_ws.handle)
 
-    app.router.add_route('GET', '/ws.html', page_ws.handle)
-    absdir = os.path.dirname(os.path.realpath(__file__))
-    app_path = os.path.join(absdir, 'assets/webpage')
-    app.router.add_get('/', index.handle)
+    app.router.add_route('GET', '/api/v1/ping', api_ping.handle)
+    app.router.add_route('GET', '/ws-journal', ws_journal.handle)
+
+    app.router.add_route('GET', '/journal.html', handle_journal)
+
+    path_assets = os.path.join(app['path-root'], "httpd/assets")
+    app.router.add_static('/assets', path_assets, show_index=False)
+
+    app.router.add_get('/', handle_index)
 
 
 def timeout_daily_midnight(app):
@@ -84,13 +98,15 @@ def register_timeout_handler_daily(app):
 def register_timeout_handler(app):
     register_timeout_handler_daily(app)
 
+def setup_db(app):
+    app['path-root'] = os.path.dirname(os.path.realpath(__file__))
 
 def main(conf):
     app = init_aiohttp(conf)
+    setup_db(app)
     setup_routes(app, conf)
     register_timeout_handler(app)
     web.run_app(app, host="localhost", port=8080)
-
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -141,6 +157,6 @@ def conf_init():
 
 
 if __name__ == '__main__':
-    log.warning("webserver start sequence")
+    log.warning("Start Logetta")
     conf = conf_init()
     main(conf)

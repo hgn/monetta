@@ -6,7 +6,10 @@ import aiohttp
 import subprocess
 import locale
 import json
+
 from aiohttp import web
+
+from httpd.utils import log
 
 
 class JournalHandler(object):
@@ -68,8 +71,13 @@ class JournalHandler(object):
         self.ws.send_json(data)
 
 
-
 async def handle(request):
+
+    peername = request.transport.get_extra_info('peername')
+    host = port = "unknown"
+    if peername is not None:
+        host, port = peername[0:2]
+    log.debug("web socket request from {}[{}]".format(host, port))
 
     ws = web.WebSocketResponse()
     await ws.prepare(request)

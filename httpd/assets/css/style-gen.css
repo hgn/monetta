@@ -1,0 +1,59 @@
+html {
+  font-size: 13px;
+}
+
+body {
+  padding-top: 5rem;
+}
+.starter-template {
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.container {
+	padding: 0px;
+	margin: 0px;
+	margin-left: 5px;
+}
+
+.list-group-item {
+	border-top:    0px;
+	border-right:  0px;
+	border-left:   0px;
+	border-bottom: 2px solid #e4e4e4;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.item-emerg {
+	border-left:   4px solid #e036ff;
+}
+.item-alert {
+	border-left:   4px solid #e036ff;
+}
+.item-crit {
+	border-left:   4px solid #e036ff;
+}
+.item-err {
+	border-left:   4px solid red;
+}
+.item-warning {
+	border-left:   4px solid #ff8100;
+}
+.item-notice {
+	border-left:   4px solid #ff9800;
+}
+.item-info {
+	border-left:   4px solid #cddc39;
+}
+.item-debug {
+	border-left:   4px solid #00bcd4;
+}
+.item-unknown {
+	border-left:   4px solid black;
+}
+
+.text-supermuted {
+  color: #8b9ca7!important;
+}
+
