@@ -6,6 +6,7 @@ import aiohttp
 import subprocess
 import locale
 import json
+import time
 
 from aiohttp import web
 
@@ -72,7 +73,6 @@ class JournalHandler(object):
 
 
 async def handle(request):
-
     peername = request.transport.get_extra_info('peername')
     host = port = "unknown"
     if peername is not None:

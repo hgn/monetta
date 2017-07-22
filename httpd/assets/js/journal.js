@@ -15,6 +15,7 @@ $(document).ready(function() {
 });
 
 function wsOnOpen(event) {
+		console.time("WS");
     mySocket.send("start");
     mySocket.send("info");
 }
@@ -198,6 +199,7 @@ function processJournalInfoData(data) {
 }
 
 function wsOnMessage(event) {
+		console.timeEnd("WS");
 			var jdata = JSON.parse(event.data);
 			if ('data-log-entry' in jdata) {
 				processJournalEntriesData(jdata['data-log-entry']);
