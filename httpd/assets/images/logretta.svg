@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="500"
+   height="500"
+   viewBox="0 0 132.29166 132.29167"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.1 r15371"
+   sodipodi:docname="logretta.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.061871843"
+     inkscape:cx="9622.9486"
+     inkscape:cy="-2360.4172"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="1920"
+     inkscape:window-height="1015"
+     inkscape:window-x="0"
+     inkscape:window-y="33"
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4489" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-164.70832)">
+    <rect
+       style="opacity:1;fill:#729fcf;fill-opacity:0.98009949;stroke:none;stroke-width:0.52916664;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4491"
+       width="132.29167"
+       height="132.29167"
+       x="0"
+       y="164.70831"
+       ry="15"
+       rx="15" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:0.98009949;stroke:none;stroke-width:0.52916664;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4487"
+       width="105.83874"
+       height="5.0781207"
+       x="12.289025"
+       y="174.92236"
+       rx="2"
+       ry="2" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:0.98009949;stroke:none;stroke-width:0.52916664;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4492"
+       width="105.83874"
+       height="5.0781207"
+       x="12.289025"
+       y="196.08905"
+       rx="2"
+       ry="2" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:0.98009949;stroke:none;stroke-width:0.52916664;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4496"
+       width="105.83874"
+       height="5.0781207"
+       x="12.289025"
+       y="217.25574"
+       rx="2"
+       ry="2" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:0.98009949;stroke:none;stroke-width:0.52916664;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4500"
+       width="105.83874"
+       height="5.0781207"
+       x="12.289025"
+       y="238.42242"
+       rx="2"
+       ry="2" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:0.98009949;stroke:none;stroke-width:0.52916664;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4504"
+       width="105.83874"
+       height="5.0781207"
+       x="12.289025"
+       y="259.5889"
+       rx="2"
+       ry="2" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:0.98009949;stroke:none;stroke-width:0.52916664;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4508"
+       width="105.83874"
+       height="5.0781207"
+       x="12.289025"
+       y="280.75552"
+       rx="2"
+       ry="2" />
+  </g>
+</svg>
