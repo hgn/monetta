@@ -77,7 +77,7 @@ async def handle(request):
     host = port = "unknown"
     if peername is not None:
         host, port = peername[0:2]
-    log.debug("web socket request from {}[{}]".format(host, port))
+    log.debug("web journal socket request from {}[{}]".format(host, port))
 
     ws = web.WebSocketResponse()
     await ws.prepare(request)

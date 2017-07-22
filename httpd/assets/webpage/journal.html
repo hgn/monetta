@@ -12,194 +12,202 @@
 	<body>
 
   <!-- Modal -->
-<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Log Entry Information</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        Function: <br />
-        Source Code: <br />
-        Realtime: <br />
-        Monotonic Time: <br />
-        ... <br />
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Limit to This Process</button>
-      </div>
-    </div>
-  </div>
-</div>
+	<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Log Entry Information</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					Function: <br />
+					Source Code: <br />
+					Realtime: <br />
+					Monotonic Time: <br />
+					... <br />
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Limit to This Process</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	<!-- /Modal -->
 
 
 
-    <nav class="navbar navbar-toggleable-md navbar-light fixed-top" style="background-color: #f9f9f9;">
-      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <a class="navbar-brand" href="#">Logetta</a>
+	<nav class="navbar navbar-toggleable-md navbar-light fixed-top" style="background-color: #f9f9f9;">
+		<button class="navbar-toggler navbar-toggler-right" type="button"
+																											data-toggle="collapse" data-target="#navbarsExampleDefault"
+																									aria-controls="navbarsExampleDefault" aria-expanded="false"
+																															 aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<a class="navbar-brand" href="#">
+			<img src="assets/images/logretta.svg" width="20" height="20" class="d-inline-block align-top" alt="">
+			Logetta
+		</a>
 
-      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="/foo" href="foo">Journal</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#"
-							@click="currentView='manage-posts'">Ressource Usage</a>
-          </li>
-        </ul>
-      </div>
-    </nav>
+		<div class="collapse navbar-collapse" id="navbarsExampleDefault">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="#">Journal</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="@resource">Resource</a>
+				</li>
+			</ul>
+			<span class="navbar-text">
+				@server-stats: x239923
+			</span>
+		</div>
+	</nav>
 
-    <div class="container-fluid">
-			<div class="row">
-				<div class="col">
-
-
-
-					<div id="accordion" role="tablist" aria-multiselectable="true">
-						<div class="card">
-							<div class="card-header" role="tab" id="headingOne">
-								<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-controls="collapseOne">
-									Priority
-								</a>
-							</div>
-
-							<div id="collapseOne" class="collapse" role="tabpanel" aria-labelledby="headingOne">
-								<div class="card-block">
-
-									<div class="btn-group" role="group" aria-label="basic example">
-										<button type="button" class="btn btn-secondary btn-sm">deselect all</button>
-										<button type="button" class="btn btn-secondary btn-sm">select all</button>
-									</div><hr />
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-2">
 
 
-									<div class="form-check">
-										<label class="form-check-label">
-											<input class="form-check-input .active" type="checkbox" value="">
-											emerg
-										</label>
-									</div>
-									<div class="form-check">
-										<label class="form-check-label">
-											<input class="form-check-input" type="checkbox" value="">
-											  alert
-										</label>
-									</div>
-									<div class="form-check">
-										<label class="form-check-label">
-											<input class="form-check-input" type="checkbox" value="">
-											  crit
-										</label>
-									</div>
-									<div class="form-check">
-										<label class="form-check-label">
-											<input class="form-check-input" type="checkbox" value="">
-											err
-										</label>
-									</div>
-									<div class="form-check">
-										<label class="form-check-label">
-											<input class="form-check-input" type="checkbox" value="">
-											warning
-										</label>
-									</div>
-									<div class="form-check">
-										<label class="form-check-label">
-											<input class="form-check-input" type="checkbox" value="">
-											notice
-										</label>
-									</div>
-									<div class="form-check">
-										<label class="form-check-label">
-											<input class="form-check-input" type="checkbox" value="">
-											info
-										</label>
-									</div>
-									<div class="form-check">
-										<label class="form-check-label">
-											<input class="form-check-input" type="checkbox" value="">
-											debug
-										</label>
-									</div>
 
-
-								</div>
-							</div>
+				<div id="accordion" role="tablist" aria-multiselectable="true">
+					<div class="card">
+						<div class="card-header" role="tab" id="headingOne">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-controls="collapseOne">
+								Priority
+							</a>
 						</div>
-						<div class="card">
-							<div class="card-header" role="tab" id="headingTwo">
-								<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-									Processes
-								</a>
-							</div>
-							<div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
+
+						<div id="collapseOne" class="collapse" role="tabpanel" aria-labelledby="headingOne">
+							<div class="card-block">
+
+								<div class="btn-group" role="group" aria-label="basic example">
+									<button type="button" class="btn btn-secondary btn-sm">deselect all</button>
+									<button type="button" class="btn btn-secondary btn-sm">select all</button>
+								</div><hr />
 
 
-
-
-								<div class="card-block">
-									<p id="process-list">loading ,,,</p>
+								<div class="form-check">
+									<label class="form-check-label">
+										<input class="form-check-input .active" type="checkbox" value="">
+										emerg
+									</label>
 								</div>
-							</div>
-						</div>
-						<div class="card">
-							<div class="card-header" role="tab" id="headingThree">
-								<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-									Container
-								</a>
-							</div>
-							<div id="collapseThree" class="collapse" role="tabpanel" aria-labelledby="headingThree">
-								<div class="card-block">
-
-									<div class="btn-group" role="group" aria-label="basic example">
-										<button type="button" class="btn btn-secondary btn-sm">deselect all</button>
-										<button type="button" class="btn btn-secondary btn-sm">select all</button>
-									</div><hr />
-
-									implement me
+								<div class="form-check">
+									<label class="form-check-label">
+										<input class="form-check-input" type="checkbox" value="">
+										alert
+									</label>
 								</div>
+								<div class="form-check">
+									<label class="form-check-label">
+										<input class="form-check-input" type="checkbox" value="">
+										crit
+									</label>
+								</div>
+								<div class="form-check">
+									<label class="form-check-label">
+										<input class="form-check-input" type="checkbox" value="">
+										err
+									</label>
+								</div>
+								<div class="form-check">
+									<label class="form-check-label">
+										<input class="form-check-input" type="checkbox" value="">
+										warning
+									</label>
+								</div>
+								<div class="form-check">
+									<label class="form-check-label">
+										<input class="form-check-input" type="checkbox" value="">
+										notice
+									</label>
+								</div>
+								<div class="form-check">
+									<label class="form-check-label">
+										<input class="form-check-input" type="checkbox" value="">
+										info
+									</label>
+								</div>
+								<div class="form-check">
+									<label class="form-check-label">
+										<input class="form-check-input" type="checkbox" value="">
+										debug
+									</label>
+								</div>
+
+
 							</div>
 						</div>
 					</div>
+					<div class="card">
+						<div class="card-header" role="tab" id="headingTwo">
+							<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+								Processes
+							</a>
+						</div>
+						<div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
 
 
-					<hr />
 
-					<div class="btn-group-sm" data-toggle="buttons">
-						<label class="btn btn-primary active">
-							<input type="radio" name="options" id="option1" autocomplete="off" checked> Enable Sync
-						</label>
-						<label class="btn btn-primary">
-							<input type="radio" name="options" id="option2" autocomplete="off"> Disable Sync
-						</label>
+
+							<div class="card-block">
+								<p id="process-list">loading ,,,</p>
+							</div>
+						</div>
 					</div>
+					<div class="card">
+						<div class="card-header" role="tab" id="headingThree">
+							<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+								Container
+							</a>
+						</div>
+						<div id="collapseThree" class="collapse" role="tabpanel" aria-labelledby="headingThree">
+							<div class="card-block">
 
-				</div> <!-- col -->
-				<div class="col-10">
-					<ul class="list-group">
-						<p id="anchor-journal"></p>
-					</ul>
-				</div> <!-- col -->
+								<div class="btn-group" role="group" aria-label="basic example">
+									<button type="button" class="btn btn-secondary btn-sm">deselect all</button>
+									<button type="button" class="btn btn-secondary btn-sm">select all</button>
+								</div><hr />
 
-			</div> <!-- row -->
+								implement me
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				<hr />
+
+				<div class="btn-group-sm" data-toggle="buttons">
+					<label class="btn btn-primary active">
+						<input type="radio" name="options" id="option1" autocomplete="off" checked> Enable Sync
+					</label>
+					<label class="btn btn-primary">
+						<input type="radio" name="options" id="option2" autocomplete="off"> Disable Sync
+					</label>
+				</div>
+
+			</div> <!-- col -->
+			<div class="col-10">
+				<ul class="list-group">
+					<p id="anchor-journal"></p>
+				</ul>
+			</div> <!-- col -->
+
+		</div> <!-- row -->
 
 
 
 
-    </div> <!-- container -->
+	</div> <!-- container -->
 
-    <script src="assets/js/jquery-3.1.1.slim.min.js"></script>
-    <script src="assets/js/tether.min.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
-		<script src='assets/js/journal.js'></script>
+	<script src="assets/js/jquery-3.1.1.slim.min.js"></script>
+	<script src="assets/js/tether.min.js"></script>
+	<script src="assets/js/bootstrap.min.js"></script>
+	<script src='assets/js/journal.js'></script>
 
 	</body>
 </html>

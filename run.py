@@ -47,19 +47,13 @@ async def handle_journal(request):
         return web.Response(body=content, content_type='text/html')
 
 async def handle_index(request):
-    raise web.HTTPFound('journal.html')
-    root = request.app['path-root']
-    full = os.path.join(root, "httpd/assets/webpage/journal.html")
-    with open(full, 'r') as content_file:
-        content = str.encode(content_file.read())
-        return web.Response(body=content, content_type='text/html')
+    raise web.HTTPFound('@journal')
 
 def setup_routes(app, conf):
-
     app.router.add_route('GET', '/api/v1/ping', api_ping.handle)
     app.router.add_route('GET', '/ws-journal', ws_journal.handle)
 
-    app.router.add_route('GET', '/journal.html', handle_journal)
+    app.router.add_route('GET', '/@journal', handle_journal)
 
     path_assets = os.path.join(app['path-root'], "httpd/assets")
     app.router.add_static('/assets', path_assets, show_index=False)
