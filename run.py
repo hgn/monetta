@@ -121,8 +121,9 @@ def parse_args():
 
 
 def load_configuration_file(args):
-    with open(args.configuration) as json_data:
-        return json.load(json_data)
+    config = dict()
+    exec(open(args.configuration).read(), config)
+    return config
 
 def configuration_check(conf):
     if not "host" in conf.common:
