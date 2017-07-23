@@ -11,18 +11,26 @@ $(document).ready(function() {
 	} else {
 		initWebSockets();
 	}
+
+	//d3Debugging();
 });
 
 
 
 function loadGraph(data, data_time) {
 
+	var height = document.getElementById('chart').offsetHeight;
+	var width = document.getElementById('chart').offsetWidth;
+
+	height = 400;
+	width = 800;
+
 	// just remove the old svg and draw a new one
 	// no clue how to implement transistions ...
 	d3.select("svg").remove();
 	var chartDiv = document.getElementById("chart");
 	var svg = d3.select(chartDiv).append("svg");
-	svg.attr("width",860).attr("height",500);
+	svg.attr("width",width).attr("height",height);
 
 
 	var margin = {top: 20, right: 80, bottom: 30, left: 50},
@@ -87,9 +95,64 @@ function wsOnOpen(event) {
     ws_socket.send("start");
 }
 
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+async function d3Debugging() {
+
+	var parseTimeT = d3.timeParse("%Y-%m-%d %H:%M:%S");
+
+  var time1 = parseTimeT('2000-1-1 10:10:10');
+	var time2 = parseTimeT('2000-1-1 10:11:11');
+	var time3 = parseTimeT('2000-1-1 10:12:11');
+
+	var data_values = [
+		{'id' : 'New York', 'values' : [
+			{ 'date' : time1, 'load' : 30},
+			{ 'date' : time2, 'load' : 34 },
+		]},
+		{'id' : 'San Francisco', 'values' : [
+			{ 'date' : time1, 'load' : 40},
+			{ 'date' : time2, 'load' : 34 },
+		]},
+		{'id' : 'Austin', 'values' : [
+			{ 'date' : time1, 'load' : 50},
+			{ 'date' : time2, 'load' : 35 },
+		]}
+	]
+	var data_time = [time1, time2];
+
+	//loadGraph(data_values, data_time);
+
+	await sleep(1000);
+
+	var data_values = [
+		{'id' : 'New York', 'values' : [
+			{ 'date' : time1, 'load' : 30},
+			{ 'date' : time2, 'load' : 34 },
+			{ 'date' : time3, 'load' : 14 },
+		]},
+		{'id' : 'San Francisco', 'values' : [
+			{ 'date' : time1, 'load' : 40},
+			{ 'date' : time2, 'load' : 34 },
+			{ 'date' : time3, 'load' : 44 }
+		]},
+		{'id' : 'Austin', 'values' : [
+			{ 'date' : time1, 'load' : 50},
+			{ 'date' : time2, 'load' : 35 },
+			{ 'date' : time3, 'load' : 35 }
+		]}
+	]
+	data_time = [time1, time3];
+
+	loadGraph(data_values, data_time);
+}
+
 
 var cpu_load_data = [];
-var cpu_load_date_data = [];
+var cpu_load_date_initial = null;
 
 function processCpuLoad(data) {
 
@@ -99,7 +162,9 @@ function processCpuLoad(data) {
 	var date = parseTimeT(data['time']);
 
 	var new_data_set = [];
-	cpu_load_date_data.push(date);
+	if (!cpu_load_date_initial) {
+		cpu_load_date_initial = date;
+	}
 
 	for (var key in data['data']){
 		if (key == 'cpu') {
@@ -108,6 +173,7 @@ function processCpuLoad(data) {
 			// graph the particular cpus, so ignore this one
 			continue;
 		}
+
 		// generate a new data set
 		var new_set = {
 			date : date,
@@ -148,25 +214,13 @@ function processCpuLoad(data) {
 	if (number_of_values > 1) {
 		// just to ignore loading graphs with with datapoint,
 		// wait at least for second iteration.
-		loadGraph(cpu_load_data, cpu_load_date_data);
+		var date_range = [cpu_load_date_initial, date];
+		loadGraph(cpu_load_data, date_range);
 	}
 
-	return;
+	//return;
 
 
-
-
-
-	var data_values = [
-		{'id' : 'New York', 'values' : [{'date' : parseTimeT('2000-1-1 10:10:10'), 'load' : 30}, { 'date' : parseTimeT('2000-1-1 10:11:11'), 'load' : 34 }, { 'date' : parseTimeT('2000-1-1 10:12:11'), 'load' : 14 },  ]},
-		{'id' : 'San Francisco', 'values' : [{'date' : parseTimeT('2000-1-1 10:10:10'), 'load' : 40}, { 'date' : parseTimeT('2000-1-1 10:11:11'), 'load' : 34 }, { 'date' : parseTimeT('2000-1-1 10:12:11'), 'load' : 44 } ]},
-		{'id' : 'Austin', 'values' : [{'date' : parseTimeT('2000-1-1 10:10:10'), 'load' : 50}, { 'date' : parseTimeT('2000-1-1 10:11:11'), 'load' : 35 }, { 'date' : parseTimeT('2000-1-1 10:12:11'), 'load' : 35 } ]},
-		{'id' : 'Berlin', 'values' : [{'date' : parseTimeT('2000-1-1 10:10:10'), 'load' : 0.0}, { 'date' : parseTimeT('2000-1-1 10:11:11'), 'load' : 10.2012021 }, { 'date' : parseTimeT('2000-1-1 10:12:11'), 'load' : 13.2012021 } ]},
-	]
-	var data_time = [parseTimeT('2000-1-1 10:10:10'), parseTimeT('2000-01-01 10:11:11'), parseTimeT('2000-1-1 10:12:11')];
-
-
-	//loadGraph(data_values, data_time);
 
 }
 
