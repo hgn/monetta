@@ -18,6 +18,12 @@ from httpd.handler import api_ping
 from httpd.handler import ws_journal
 from httpd.handler import ws_resource
 
+try:
+    import pympler.summary
+    import pympler.muppy
+except:
+    pympler.summary = None
+
 
 
 APP_VERSION = "001"
@@ -105,7 +111,28 @@ def register_timeout_handler(app):
 def setup_db(app):
     app['path-root'] = os.path.dirname(os.path.realpath(__file__))
 
+async def recuring_memory_output(conf):
+    while True:
+        objects = pympler.muppy.get_objects()
+        sum1 = pympler.summary.summarize(objects)
+        pympler.summary.print_(sum1)
+        await asyncio.sleep(60)
+
+
+def init_debug_memory(conf):
+    log.err("initialize memory debugging")
+    if not pympler.summary:
+        log.err("pympler not installed, memory_debug not possible")
+        return
+    asyncio.ensure_future(recuring_memory_output(conf))
+
+
+def init_debug(conf):
+    if 'memory_debug' in conf and conf['memory_debug']:
+        init_debug_memory(conf)
+
 def main(conf):
+    init_debug(conf)
     app = init_aiohttp(conf)
     setup_db(app)
     setup_routes(app, conf)

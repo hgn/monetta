@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # coding: utf-8
 
+import sys
 import traceback
 #import systemd.journal
 from systemd.journal import send
@@ -17,6 +18,7 @@ def emerg(msg):
     # always on
     file_, line_, func_ = _query_stack_data()
     send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=0)
+    sys.stderr.write(msg + '\n')
 
 
 def alert(msg):
@@ -24,6 +26,7 @@ def alert(msg):
         return
     file_, line_, func_ = _query_stack_data()
     send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=1)
+    sys.stderr.write(msg + '\n')
 
 
 def crit(msg):
@@ -31,6 +34,7 @@ def crit(msg):
         return
     file_, line_, func_ = _query_stack_data()
     send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=2)
+    sys.stderr.write(msg)
 
 
 def err(msg):
@@ -38,6 +42,7 @@ def err(msg):
         return
     file_, line_, func_ = _query_stack_data()
     send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=3)
+    sys.stderr.write(msg + '\n')
 
 
 def warning(msg):
@@ -45,6 +50,7 @@ def warning(msg):
         return
     file_, line_, func_ = _query_stack_data()
     send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=4)
+    sys.stderr.write(msg + '\n')
 
 
 def notice(msg):
@@ -52,6 +58,7 @@ def notice(msg):
         return
     file_, line_, func_ = _query_stack_data()
     send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=5)
+    sys.stderr.write(msg + '\n')
 
 
 def info(msg):
@@ -59,6 +66,7 @@ def info(msg):
         return
     file_, line_, func_ = _query_stack_data()
     send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=6)
+    sys.stderr.write(msg + '\n')
 
 
 def debug(msg):
@@ -66,5 +74,6 @@ def debug(msg):
         return
     file_, line_, func_ = _query_stack_data()
     send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=7)
+    sys.stderr.write(msg + '\n')
 
 
