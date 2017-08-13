@@ -17,18 +17,19 @@ $(document).ready(function() {
 
 
 
-function loadGraph(data, data_time) {
+function dataCpuGraph(data, data_time) {
 
-	var height = document.getElementById('chart').offsetHeight;
-	var width = document.getElementById('chart').offsetWidth;
-
-	height = 400;
-	width = 800;
+	var height = 300;
+	var width = document.getElementById('chart-cpu').offsetWidth;
 
 	// just remove the old svg and draw a new one
 	// no clue how to implement transistions ...
-	d3.select("svg").remove();
-	var chartDiv = document.getElementById("chart");
+  var svgParent =	document.getElementById("chart-cpu");
+	while (svgParent.hasChildNodes()) {
+		    svgParent.removeChild(svgParent.firstChild);
+	}
+
+	var chartDiv = document.getElementById("chart-cpu");
 	var svg = d3.select(chartDiv).append("svg");
 	svg.attr("width",width).attr("height",height);
 
@@ -50,10 +51,14 @@ function loadGraph(data, data_time) {
 
 	x.domain(data_time);
 
+	var data_y_min = d3.min(data, function(c) { return d3.min(c.values, function(d) { return d.load; }); })
+	var data_y_max = d3.max(data, function(c) { return d3.max(c.values, function(d) { return d.load; }); })
+	var data_y_max_final = d3.max([data_y_max, 100]);
+
 	y.domain([
-		d3.min(data, function(c) { return d3.min(c.values, function(d) { return d.load; }); }),
-		d3.max(data, function(c) { return d3.max(c.values, function(d) { return d.load; }); })
+		data_y_min, data_y_max_final
 	]);
+
 
 	z.domain(data.map(function(c) { return c.id; }));
 
@@ -124,7 +129,7 @@ async function d3Debugging() {
 	]
 	var data_time = [time1, time2];
 
-	//loadGraph(data_values, data_time);
+	//dataCpuGraph(data_values, data_time);
 
 	await sleep(1000);
 
@@ -147,9 +152,22 @@ async function d3Debugging() {
 	]
 	data_time = [time1, time3];
 
-	loadGraph(data_values, data_time);
+	dataCpuGraph(data_values, data_time);
 }
 
+// limit to 2 minutes ...
+var cpu_limit_times = 60 * 2
+
+function limitCpuRecordData(data) {
+	var date = null;
+	for (var i = 0; i < data.length; i++) {
+		if (data[i].values.length > cpu_limit_times) {
+			data[i].values.shift();
+		}
+		date = data[0].values[0].date;
+	}
+	return date;
+}
 
 var cpu_load_data = [];
 var cpu_load_date_initial = null;
@@ -211,22 +229,23 @@ function processCpuLoad(data) {
 		}
 	}
 
+	// limit the data set to n
+	var updated_initial = limitCpuRecordData(cpu_load_data);
+	if (updated_initial != null)
+		cpu_load_date_initial = updated_initial;
+
 	if (number_of_values > 1) {
 		// just to ignore loading graphs with with datapoint,
 		// wait at least for second iteration.
 		var date_range = [cpu_load_date_initial, date];
-		loadGraph(cpu_load_data, date_range);
+		dataCpuGraph(cpu_load_data, date_range);
 	}
-
-	//return;
-
-
-
 }
 
 function wsOnMessage(event) {
 			var jdata = JSON.parse(event.data);
 			if ('cpu-load' in jdata) {
+dataMemoryGraph();
 				processCpuLoad(jdata['cpu-load']);
 			} else {
 				console.log("data not handled");
@@ -235,6 +254,7 @@ function wsOnMessage(event) {
 
 function initWebSockets() {
 	try {
+		console.log("use unencryped web socket for data exchange");
 		ws_socket = new WebSocket('ws://' + window.location.host + '/ws-resource');
 	}
 	catch(err) {
@@ -248,3 +268,61 @@ function initWebSockets() {
 	ws_socket.onmessage = wsOnMessage;
 	ws_socket.onopen    = wsOnOpen;
 }
+
+
+// memory chart
+function dataMemoryGraph() {
+
+	var height = 300;
+	var width = document.getElementById('chart-memory').offsetWidth;
+	var radius = Math.min(width, height) / 2;
+
+
+	// just remove the old svg and draw a new one
+	// no clue how to implement transistions ...
+	var chartDiv =	document.getElementById("chart-memory");
+	while (chartDiv.hasChildNodes()) {
+		chartDiv.removeChild(chartDiv.firstChild);
+	}
+
+	var svg = d3.select(chartDiv).append("svg")
+		.attr("width", width)
+		.attr("height", height)
+		.append("g")
+		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+
+	var data = [{"letter":"used","presses":1},{"letter":"free","presses":5},{"letter":"foo","presses":2}];
+
+
+	var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+	var arc = d3.arc()
+		.outerRadius(radius - 10)
+		.innerRadius(0);
+
+	var labelArc = d3.arc()
+		.outerRadius(radius - 40)
+		.innerRadius(radius - 40);
+
+	var pie = d3.pie()
+		.sort(null)
+	  .value(function(d) { return d.presses; })(data);
+
+	var g = svg.selectAll(".arc")
+		.data(pie)
+		.enter().append("g")
+		.attr("class", "arc");
+
+	g.append("path")
+		.attr("d", arc)
+		.style("fill", function(d) { return color(d.data.letter); });
+
+	g.append("text")
+		.attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
+		.attr("dy", ".35em")
+		.text(function(d) { return d.data.letter; })
+	  .style("fill", "#fff");
+}
+
+
