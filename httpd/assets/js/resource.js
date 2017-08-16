@@ -337,7 +337,7 @@ function convertRawMeminfoData(rawData) {
     var usedTitle = 'Used Memory: ' + usedDiff + " " + rawData['MemTotal'][1];
 
     var freeDiff = parseInt(rawData['MemFree'][0]);
-    var freeTitle = 'Free Memory: ' + usedDiff + " " + rawData['MemFree'][1];
+    var freeTitle = 'Free Memory: ' + freeDiff + " " + rawData['MemFree'][1];
 
     ret.push({letter : freeTitle, presses : freeDiff});
     ret.push({letter : usedTitle, presses : usedDiff});
