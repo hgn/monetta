@@ -9,9 +9,13 @@ import json
 import time
 import datetime
 
+from collections import OrderedDict
+
 from aiohttp import web
 
 from httpd.utils import log
+
+MEMINFO_WHITELIST = ("MemTotal", "MemFree", "MemAvailable")
 
 
 class ResourceHandler(object):
@@ -25,6 +29,9 @@ class ResourceHandler(object):
 
     async def shutdown(self):
         await self.queue.put("shutdown")
+
+    def get_meminfo(self):
+        asyncio.ensure_future(self._get_meminfo())
 
     def sync_cpu_usage(self):
         asyncio.ensure_future(self._sync_cpu_usage())
@@ -73,6 +80,29 @@ class ResourceHandler(object):
     def high_res_timestamp():
         utc = datetime.datetime.utcnow()
         return utc.timestamp() + utc.microsecond / 1e6
+
+    async def _get_meminfo(self):
+        with open('/proc/meminfo') as fd:
+            meminfo = dict()
+            for line in fd:
+                key, val = line.split(':')
+                if key not in MEMINFO_WHITELIST:
+                    continue
+                val, unit = val.split()
+                meminfo[key] = (val, unit)
+            data = dict()
+            data['meminfo'] = dict()
+            data['meminfo']['data'] = meminfo
+            now = datetime.datetime.now()
+            data['meminfo']['time'] = "{}-{}-{} {}:{}:{}".format(now.year, now.month, now.day, now.hour, now.minute, now.second)
+            try:
+                ret = self.ws.send_json(data)
+                if ret: await ret
+            except RuntimeError:
+                # probably clossed client connection (not called closed,
+                # just closed window, we need to handle this gracefully
+                # -> kill self.p and so on
+                return
 
 
     async def _sync_cpu_usage(self):
@@ -123,10 +153,12 @@ async def handle(request):
                 await ws.close()
                 await jh.shutdown()
                 return ws
-            elif msg.data == 'start':
+            elif msg.data == 'start-cpu-utilization':
                 jh.sync_cpu_usage()
+            elif msg.data == 'get-meminfo':
+                jh.get_meminfo()
             else:
-                print("unknown websocket command")
+                log.debug("unknown websocket command: {}".format(msg.data))
         elif msg.type == aiohttp.WSMsgType.ERROR:
             print('ws connection closed with exception %s' % ws.exception())
     return ws

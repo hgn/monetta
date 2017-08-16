@@ -5,14 +5,18 @@ var ws_socket;
 
 $(document).ready(function() {
 
+    // just draw something, just to
+    // make the user experience less
+    // flickering
+    setupInitialGraphs();
+
+
 	if(!("WebSocket" in window)){
 		console.log("browser support no web sockets");
 		return;
 	} else {
 		initWebSockets();
 	}
-
-	//d3Debugging();
 });
 
 
@@ -97,7 +101,8 @@ function dataCpuGraph(data, data_time) {
 }
 
 function wsOnOpen(event) {
-    ws_socket.send("start");
+    ws_socket.send("start-cpu-utilization");
+    ws_socket.send("get-meminfo");
 }
 
 function sleep(ms) {
@@ -109,7 +114,7 @@ async function d3Debugging() {
 
 	var parseTimeT = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
-  var time1 = parseTimeT('2000-1-1 10:10:10');
+    var time1 = parseTimeT('2000-1-1 10:10:10');
 	var time2 = parseTimeT('2000-1-1 10:11:11');
 	var time3 = parseTimeT('2000-1-1 10:12:11');
 
@@ -245,8 +250,9 @@ function processCpuLoad(data) {
 function wsOnMessage(event) {
 			var jdata = JSON.parse(event.data);
 			if ('cpu-load' in jdata) {
-dataMemoryGraph();
 				processCpuLoad(jdata['cpu-load']);
+            } else if ('meminfo' in jdata) {
+                processMeminfoData(jdata['meminfo'])
 			} else {
 				console.log("data not handled");
 			}
@@ -271,58 +277,99 @@ function initWebSockets() {
 
 
 // memory chart
-function dataMemoryGraph() {
+function dataMeminfoGraph(data) {
 
-	var height = 300;
-	var width = document.getElementById('chart-memory').offsetWidth;
-	var radius = Math.min(width, height) / 2;
-
-
-	// just remove the old svg and draw a new one
-	// no clue how to implement transistions ...
-	var chartDiv =	document.getElementById("chart-memory");
-	while (chartDiv.hasChildNodes()) {
-		chartDiv.removeChild(chartDiv.firstChild);
-	}
-
-	var svg = d3.select(chartDiv).append("svg")
-		.attr("width", width)
-		.attr("height", height)
-		.append("g")
-		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    var height = 300;
+    var width = document.getElementById('chart-memory').offsetWidth;
+    var radius = Math.min(width, height) / 2;
 
 
-	var data = [{"letter":"used","presses":1},{"letter":"free","presses":5},{"letter":"foo","presses":2}];
+    // just remove the old svg and draw a new one
+    // no clue how to implement transistions ...
+    var chartDiv =	document.getElementById("chart-memory");
+    while (chartDiv.hasChildNodes()) {
+        chartDiv.removeChild(chartDiv.firstChild);
+    }
 
+    var svg = d3.select(chartDiv).append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-	var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+    var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
-	var arc = d3.arc()
-		.outerRadius(radius - 10)
-		.innerRadius(0);
+    var arc = d3.arc()
+        .outerRadius(radius - 10)
+        .innerRadius(0);
 
-	var labelArc = d3.arc()
-		.outerRadius(radius - 40)
-		.innerRadius(radius - 40);
+    var labelArc = d3.arc()
+        .outerRadius(radius - 40)
+        .innerRadius(radius - 40);
 
-	var pie = d3.pie()
-		.sort(null)
-	  .value(function(d) { return d.presses; })(data);
+    var pie = d3.pie()
+        .sort(null)
+        .value(function(d) { return d.presses; })(data);
 
-	var g = svg.selectAll(".arc")
-		.data(pie)
-		.enter().append("g")
-		.attr("class", "arc");
+    var g = svg.selectAll(".arc")
+        .data(pie)
+        .enter().append("g")
+        .attr("class", "arc");
 
-	g.append("path")
-		.attr("d", arc)
-		.style("fill", function(d) { return color(d.data.letter); });
+    g.append("path")
+        .attr("d", arc)
+        .style("fill", function(d) { return color(d.data.letter); });
 
-	g.append("text")
-		.attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
-		.attr("dy", ".35em")
-		.text(function(d) { return d.data.letter; })
-	  .style("fill", "#fff");
+    g.append("text")
+        .attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
+        .attr("dy", ".35em")
+		.style("font", "14px sans-serif")
+        .attr("text-anchor", "middle")
+        .text(function(d) { return d.data.letter; })
+        //.style("text-shadow", "0 1px 0 #fff, 1px 0 0 #000, 0 -1px 0 #fff, -1px 0 0 #fff")
+        .style("fill", "#333");
 }
 
+function convertRawMeminfoData(rawData) {
+    var ret = [];
 
+    var usedDiff = rawData['MemTotal'][0] - rawData['MemFree'][0]
+    var usedTitle = 'Used Memory: ' + usedDiff + " " + rawData['MemTotal'][1];
+
+    var freeDiff = parseInt(rawData['MemFree'][0]);
+    var freeTitle = 'Free Memory: ' + usedDiff + " " + rawData['MemFree'][1];
+
+    ret.push({letter : freeTitle, presses : freeDiff});
+    ret.push({letter : usedTitle, presses : usedDiff});
+
+    return ret;
+}
+
+function initialMeminfoData(rawData) {
+    var ret = [];
+
+    var usedDiff = 1
+    var usedTitle = 'Used Memory: unknown';
+
+    var freeDiff = 2;
+    var freeTitle = 'Free Memory: unknown';
+
+    ret.push({letter : freeTitle, presses : freeDiff});
+    ret.push({letter : usedTitle, presses : usedDiff});
+
+    return ret;
+}
+
+function processMeminfoData(rawData) {
+    var pieGraphData = convertRawMeminfoData(rawData['data']);
+    dataMeminfoGraph(pieGraphData);
+}
+
+function setupInitialMeminfoGraph() {
+    var pieGraphData = initialMeminfoData();
+    dataMeminfoGraph(pieGraphData);
+}
+
+function setupInitialGraphs() {
+    setupInitialMeminfoGraph();
+}

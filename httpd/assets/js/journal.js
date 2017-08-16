@@ -15,7 +15,7 @@ $(document).ready(function() {
 });
 
 function wsOnOpen(event) {
-		console.time("WS");
+	console.time("WS");
     mySocket.send("start");
     mySocket.send("info");
 }
