@@ -321,13 +321,13 @@ function dataMeminfoGraph(data) {
         .style("fill", function(d) { return color(d.data.letter); });
 
     g.append("text")
-        .attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
-        .attr("dy", ".35em")
-		.style("font", "14px sans-serif")
-        .attr("text-anchor", "middle")
-        .text(function(d) { return d.data.letter; })
-        //.style("text-shadow", "0 1px 0 #fff, 1px 0 0 #000, 0 -1px 0 #fff, -1px 0 0 #fff")
-        .style("fill", "#333");
+			.attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
+			.attr("dy", ".35em")
+			.style("font", "14px sans-serif")
+			.attr("text-anchor", "middle")
+			.text(function(d) { return d.data.letter; })
+		//.style("text-shadow", "0 1px 0 #fff, 1px 0 0 #000, 0 -1px 0 #fff, -1px 0 0 #fff")
+			.style("fill", "#333");
 }
 
 function convertRawMeminfoData(rawData) {
