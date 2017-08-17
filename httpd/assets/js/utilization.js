@@ -333,11 +333,14 @@ function dataMeminfoGraph(data) {
 function convertRawMeminfoData(rawData) {
     var ret = [];
 
-    var usedDiff = rawData['MemTotal'][0] - rawData['MemFree'][0]
-    var usedTitle = 'Used Memory: ' + usedDiff + " " + rawData['MemTotal'][1];
+    var usedDiff = rawData['MemTotal'] - rawData['MemFree']
+    var usedTitle = 'Used Memory: ' + prettyNumber(usedDiff);
 
-    var freeDiff = parseInt(rawData['MemFree'][0]);
-    var freeTitle = 'Free Memory: ' + freeDiff + " " + rawData['MemFree'][1];
+    var freeDiff = parseInt(rawData['MemFree']);
+    var freeTitle = 'Free Memory: ' + prettyNumber(freeDiff);
+
+	  console.log(rawData['MemTotal']);
+	  console.log(freeDiff);
 
     ret.push({letter : freeTitle, presses : freeDiff});
     ret.push({letter : usedTitle, presses : usedDiff});
@@ -372,4 +375,27 @@ function setupInitialMeminfoGraph() {
 
 function setupInitialGraphs() {
     setupInitialMeminfoGraph();
+}
+
+function prettyNumber(pBytes) {
+    // Handle some special cases
+    if(pBytes == 0) return '0 Bytes';
+    if(pBytes == 1) return '1 Byte';
+    if(pBytes == -1) return '-1 Byte';
+
+    var bytes = Math.abs(pBytes)
+		var orderOfMagnitude = Math.pow(2, 10);
+		var abbreviations = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    var i = Math.floor(Math.log(bytes) / Math.log(orderOfMagnitude));
+    var result = (bytes / Math.pow(orderOfMagnitude, i));
+
+    if(pBytes < 0) {
+        result *= -1;
+    }
+
+    if(result >= 99.995 || i==0) {
+        return result.toFixed(0) + ' ' + abbreviations[i];
+    } else {
+        return result.toFixed(2) + ' ' + abbreviations[i];
+    }
 }

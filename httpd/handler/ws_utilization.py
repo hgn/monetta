@@ -89,7 +89,9 @@ class ResourceHandler(object):
                 if key not in MEMINFO_WHITELIST:
                     continue
                 val, unit = val.split()
-                meminfo[key] = (val, unit)
+                factor = 1000 # stupid fallback
+                if unit == "kB": factor = 1024
+                meminfo[key] = int(val) * factor
             data = dict()
             data['meminfo'] = dict()
             data['meminfo']['data'] = meminfo
@@ -119,7 +121,7 @@ class ResourceHandler(object):
 
                 Idle = stop[cpu]['idle']
                 PrevIdle = start[cpu]['idle']
-                CPU_Percentage=((Total-PrevTotal)-(Idle-PrevIdle))/(Total-PrevTotal)*100
+                CPU_Percentage= ((Total - PrevTotal) - (Idle - PrevIdle)) / (Total - PrevTotal) * 100
                 cpu_load.update({cpu: CPU_Percentage})
             data = dict()
             data['cpu-load'] = dict()
