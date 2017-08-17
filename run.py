@@ -16,7 +16,7 @@ from aiohttp import web
 from httpd.utils import log
 from httpd.handler import api_ping
 from httpd.handler import ws_journal
-from httpd.handler import ws_resource
+from httpd.handler import ws_utilization
 
 try:
     import pympler.summary
@@ -53,23 +53,23 @@ async def handle_journal(request):
         content = str.encode(content_file.read())
         return web.Response(body=content, content_type='text/html')
 
-async def handle_resource(request):
+async def handle_utilization(request):
     root = request.app['path-root']
-    full = os.path.join(root, "httpd/assets/webpage/resource.html")
+    full = os.path.join(root, "httpd/assets/webpage/utilization.html")
     with open(full, 'r') as content_file:
         content = str.encode(content_file.read())
         return web.Response(body=content, content_type='text/html')
 
 async def handle_index(request):
-    raise web.HTTPFound('@journal')
+    raise web.HTTPFound('journal')
 
 def setup_routes(app, conf):
     app.router.add_route('GET', '/api/v1/ping', api_ping.handle)
     app.router.add_route('GET', '/ws-journal', ws_journal.handle)
-    app.router.add_route('GET', '/ws-resource', ws_resource.handle)
+    app.router.add_route('GET', '/ws-utilization', ws_utilization.handle)
 
-    app.router.add_route('GET', '/@journal', handle_journal)
-    app.router.add_route('GET', '/@resource', handle_resource)
+    app.router.add_route('GET', '/journal', handle_journal)
+    app.router.add_route('GET', '/utilization', handle_utilization)
 
     path_assets = os.path.join(app['path-root'], "httpd/assets")
     app.router.add_static('/assets', path_assets, show_index=False)

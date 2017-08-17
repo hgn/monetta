@@ -261,11 +261,11 @@ function wsOnMessage(event) {
 function initWebSockets() {
 	try {
 		console.log("use unencryped web socket for data exchange");
-		ws_socket = new WebSocket('ws://' + window.location.host + '/ws-resource');
+		ws_socket = new WebSocket('ws://' + window.location.host + '/ws-utilization');
 	}
 	catch(err) {
 		try {
-			ws_socket = new WebSocket('wss://' + window.location.host + '/ws-resouce');
+			ws_socket = new WebSocket('wss://' + window.location.host + '/ws-utilization');
 		} catch(exception){
 			console.log('Error' + exception);
 		}
