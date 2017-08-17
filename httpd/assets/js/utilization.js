@@ -309,7 +309,7 @@ function dataMeminfoGraph(data) {
 
     var pie = d3.pie()
         .sort(null)
-        .value(function(d) { return d.presses; })(data);
+        .value(function(d) { return d.number; })(data);
 
     var g = svg.selectAll(".arc")
         .data(pie)
@@ -318,14 +318,14 @@ function dataMeminfoGraph(data) {
 
     g.append("path")
         .attr("d", arc)
-        .style("fill", function(d) { return color(d.data.letter); });
+        .style("fill", function(d) { return color(d.data.title); });
 
     g.append("text")
 			.attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
 			.attr("dy", ".35em")
 			.style("font", "14px sans-serif")
 			.attr("text-anchor", "middle")
-			.text(function(d) { return d.data.letter; })
+			.text(function(d) { return d.data.title; })
 		//.style("text-shadow", "0 1px 0 #fff, 1px 0 0 #000, 0 -1px 0 #fff, -1px 0 0 #fff")
 			.style("fill", "#333");
 }
@@ -339,11 +339,8 @@ function convertRawMeminfoData(rawData) {
     var freeDiff = parseInt(rawData['MemFree']);
     var freeTitle = 'Free Memory: ' + prettyNumber(freeDiff);
 
-	  console.log(rawData['MemTotal']);
-	  console.log(freeDiff);
-
-    ret.push({letter : freeTitle, presses : freeDiff});
-    ret.push({letter : usedTitle, presses : usedDiff});
+    ret.push({title : freeTitle, number : freeDiff});
+    ret.push({title : usedTitle, number : usedDiff});
 
     return ret;
 }
@@ -357,8 +354,8 @@ function initialMeminfoData(rawData) {
     var freeDiff = 2;
     var freeTitle = 'Free Memory: unknown';
 
-    ret.push({letter : freeTitle, presses : freeDiff});
-    ret.push({letter : usedTitle, presses : usedDiff});
+    ret.push({title : freeTitle, number : freeDiff});
+    ret.push({title : usedTitle, number : usedDiff});
 
     return ret;
 }
