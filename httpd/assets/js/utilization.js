@@ -5,10 +5,10 @@ var ws_socket;
 
 $(document).ready(function() {
 
-    // just draw something, just to
-    // make the user experience less
-    // flickering
-    setupInitialGraphs();
+	// just draw something, just to
+	// make the user experience less
+	// flickering
+	setupInitialGraphs();
 
 
 	if(!("WebSocket" in window)){
@@ -17,8 +17,11 @@ $(document).ready(function() {
 	} else {
 		initWebSockets();
 	}
-});
 
+	var popover_options = {html:true};
+	$('#popoverDataA').popover(popover_options);
+	$('#popoverDataB').popover(popover_options);
+});
 
 
 function dataCpuGraph(data, data_time) {

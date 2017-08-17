@@ -84,3 +84,10 @@ body {
     95% {left: 120%;}
     to {left: 100%;}
 }
+
+.alignleft {
+	float: left;
+}
+.alignright {
+	float: right;
+}

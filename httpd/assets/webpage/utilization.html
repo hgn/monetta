@@ -8,6 +8,7 @@
 			<link rel="stylesheet" href="assets/css/bootstrap-grid.min.css">
 			<link rel="stylesheet" href="assets/css/style-gen.css">
 			<link rel="stylesheet" href="assets/css/style-utilization.css">
+			<link rel="stylesheet" href="assets/css/font-awesome.min.css">
 		<title>Logetta</title>
 	</head>
 	<body>
@@ -47,7 +48,15 @@
 			<div class="col-7" style="min-width: 300px">
 				<div class="card border-light">
 					<h5 class="card-header">
-						CPU History
+						<span class="alignleft">CPU History</span>
+						<span class="alignright">
+							<span id="popoverDataA" href="#" data-content="What is CPU
+								History<br />ff" rel="popover" data-placement="left"
+							 data-original-title="CPU History" data-trigger="hover">
+								<span class="fa fa-info-circle"></span>
+							</span>
+						</span>
+						<span style="clear: both;"></span>
 					</h5>
 					<div class="card-body">
 						<div id="chart-cpu" style="height:300px;">
@@ -60,12 +69,24 @@
 			<div class="col-5" style="min-width: 300px">
 				<div class="card border-light">
 					<h5 class="card-header">
-						Memory Consumption
+						<span class="alignleft">Memory Consumption</span>
+						<span class="alignright">
+							<span id="popoverDataB" href="#" data-content="Popover
+							 with data-trigger" rel="popover" data-placement="left"
+							 data-original-title="Title" data-trigger="hover">
+								<span class="fa fa-info-circle"></span>
+							</span>
+						</span>
+						<span style="clear: both;"></span>
+
 					</h5>
 					<div class="card-body">
 						<div id="chart-memory"></div>
 					</div>
 				</div>
+
+
+
 			</div> <!-- col -->
 
 
