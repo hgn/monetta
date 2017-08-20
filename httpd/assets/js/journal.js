@@ -15,9 +15,9 @@ $(document).ready(function() {
 });
 
 function wsOnOpen(event) {
-	console.time("WS");
-    mySocket.send("start");
-    mySocket.send("info");
+	mySocket.send("history");
+	mySocket.send("info");
+	mySocket.send("start");
 }
 
 // this is why JS is so f*cking stupid, see callsites
@@ -158,8 +158,18 @@ function journalEntryConstructSubtitle(entry) {
 }
 
 function processJournalEntriesData(data) {
-	journalSaveNewEntry(data)
+    for (let s of data) {
+        journalSaveNewEntry(s);
+    }
+    redrawJournalList();
+}
 
+function processJournalEntryData(data) {
+	journalSaveNewEntry(data);
+    redrawJournalList();
+}
+
+function redrawJournalList() {
 	var newstr = ""
 	for (var i = journalEntryArray.length - 1; i > 0; i--) {
 		//console.log(journalEntryArray[i]);
@@ -174,35 +184,36 @@ function processJournalEntriesData(data) {
 		  + journalEntryConstructSubtitle(journalEntryArray[i])
 		  + '</small></a>';
 	}
-
-	var output = document.getElementById("anchor-journal");
+	let output = document.getElementById("anchor-journal");
 	output.innerHTML = newstr;
 }
 
 function processJournalInfoData(data) {
-				if ('list-comm' in data) {
-					var comm_entries = data['list-comm'].sort().reverse();
-					var newstr = '<div class="btn-group" role="group" aria-label="Basic example">'
-								+ '<button type="button" class="btn btn-secondary btn-sm">Deselect All</button>'
-								+ '<button type="button" class="btn btn-secondary btn-sm">Select All</button>'
-								+ '</div><hr />'
-					for (var i = comm_entries.length - 1; i > 0; i--) {
-						newstr = newstr +
-							'<div class="form-check"><label class="form-check-label">' +
-							'<input class="form-check-input" type="checkbox" value=""> ' +
-						   comm_entries[i] +
-							'</label></div>';
-					}
-					var output = document.getElementById("process-list");
-					output.innerHTML = newstr;
-				}
+    if ('list-comm' in data) {
+        var comm_entries = data['list-comm'].sort().reverse();
+        var newstr = '<div class="btn-group" role="group" aria-label="Basic example">'
+            + '<button type="button" class="btn btn-secondary btn-sm">Deselect All</button>'
+            + '<button type="button" class="btn btn-secondary btn-sm">Select All</button>'
+            + '</div><hr />'
+        for (var i = comm_entries.length - 1; i > 0; i--) {
+            newstr = newstr +
+                '<div class="form-check"><label class="form-check-label">' +
+                '<input class="form-check-input" type="checkbox" value=""> ' +
+                comm_entries[i] +
+                '</label></div>';
+        }
+        var output = document.getElementById("process-list");
+        output.innerHTML = newstr;
+    }
 }
 
 function wsOnMessage(event) {
 		console.timeEnd("WS");
 			var jdata = JSON.parse(event.data);
 			if ('data-log-entry' in jdata) {
-				processJournalEntriesData(jdata['data-log-entry']);
+				processJournalEntryData(jdata['data-log-entry']);
+            } else if ('data-log-entries' in jdata) {
+				processJournalEntriesData(jdata['data-log-entries']);
 			} else if ('data-info' in jdata) {
 				processJournalInfoData(jdata['data-info']);
 			} else {

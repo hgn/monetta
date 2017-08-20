@@ -30,7 +30,7 @@ class JournalHandler(object):
         await self.p.wait()
 
     async def _sync_log(self):
-        cmd = ["journalctl", "-n", "500",  "-f", "-o", "json"]
+        cmd = ["journalctl", "-n", "0",  "-f", "-o", "json"]
         self.p = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
         while True:
             async for line in self.p.stdout:
@@ -51,6 +51,21 @@ class JournalHandler(object):
                 if ret: await ret
         return await self.p.wait()
 
+    def sync_history(self):
+        cmd = "journalctl -n 500 -o json"
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        output, _ = p.communicate()
+        p_status = p.wait()
+        output = output.decode("utf-8")
+        # bring returned data into a valid json list/dict string
+        # with ,-separation and list braches.
+        data_list = ','.join(output.split('\n'))
+        data_list = data_list[:-1]
+        data_list = "[\n" + data_list + "\n]"
+        journal_data = json.loads(data_list)
+        data = dict()
+        data['data-log-entries'] = journal_data
+        self.ws.send_json(data)
 
     def sync_info(self):
         cmd = "journalctl -o json"
@@ -88,6 +103,8 @@ async def handle(request):
                 return ws
             if msg.data == 'info':
                 jh.sync_info()
+            elif msg.data == 'history':
+                jh.sync_history()
             elif msg.data == 'start':
                 jh.sync_log()
             else:
