@@ -30,6 +30,13 @@ class JournalHandler(object):
         await self.p.wait()
 
     async def _sync_log(self):
+        # XXX this is a workaround for double transmitted
+        # log entries. This call is probably soo fast called
+        # that the other journalctl process is still reading.
+        # so we see two times the last entry. This short read
+        # will prevent this from happen, at least at the test
+        # platform ... --hgn
+        await asyncio.sleep(0.2)
         cmd = ["journalctl", "-n", "0",  "-f", "-o", "json"]
         self.p = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
         while True:

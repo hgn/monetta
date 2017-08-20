@@ -108,42 +108,42 @@ function journalSaveNewEntry(entry) {
 		}
 	}
 
-	var element = {
-		message: message,
-		priority: human_prio,
-		uid: uid,
-		gid: gid,
-		pid: pid,
-		cmdline: cmdline,
-		transport: transport,
-		comm: comm,
-		realtime: realtime
-	};
+    var element = {
+        message: message,
+        priority: human_prio,
+        uid: uid,
+        gid: gid,
+        pid: pid,
+        cmdline: cmdline,
+        transport: transport,
+        comm: comm,
+        realtime: realtime
+    };
 
-	journalEntryArray.push(element);
+    journalEntryArray.push(element);
 }
 
 function itemSelectPriorityColor(entry) {
-	switch (entry.priority) {
-			case "emerg":
-				return 'item-emerg';
-			case "alert":
-				return 'item-alert';
-			case "crit":
-				return 'item-crit';
-			case "err":
-				return 'item-err';
-			case "warning":
-				return 'item-warning';
-			case "notice":
-				return 'item-notice';
-			case "info":
-				return 'item-info';
-			case "debug":
-				return 'item-debug';
-			default:
-				return 'item-unknown';
-	}
+    switch (entry.priority) {
+        case "emerg":
+            return 'item-emerg';
+        case "alert":
+            return 'item-alert';
+        case "crit":
+            return 'item-crit';
+        case "err":
+            return 'item-err';
+        case "warning":
+            return 'item-warning';
+        case "notice":
+            return 'item-notice';
+        case "info":
+            return 'item-info';
+        case "debug":
+            return 'item-debug';
+        default:
+            return 'item-unknown';
+    }
 }
 
 function journalEntryConstructSubtitle(entry) {
@@ -222,20 +222,18 @@ function wsOnMessage(event) {
 }
 
 function initWebSockets() {
-	try {
+    try {
 
-		try {
-			mySocket = new WebSocket('ws://' + window.location.host + '/ws-journal');
-		}
-		catch(err) {
-			mySocket = new WebSocket('wss://' + window.location.host + '/ws-journal');
-		}
+        try {
+            mySocket = new WebSocket('ws://' + window.location.host + '/ws-journal');
+        }
+        catch(err) {
+            mySocket = new WebSocket('wss://' + window.location.host + '/ws-journal');
+        }
+        mySocket.onmessage = wsOnMessage;
+        mySocket.onopen    = wsOnOpen;
 
-		mySocket.onmessage = wsOnMessage;
-    mySocket.onopen    = wsOnOpen;
-
-
-	} catch(exception){
-		console.log('Error' + exception);
-	}
+    } catch(exception){
+        console.log('Error' + exception);
+    }
 }
