@@ -189,6 +189,7 @@ def conf_init():
 
 
 if __name__ == '__main__':
-    log.warning("Start Logetta")
+    info_str = sys.version.replace('\n', ' ')
+    log.warning("starting monetta (python: {})".format(info_str))
     conf = conf_init()
     main(conf)
