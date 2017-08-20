@@ -25,21 +25,20 @@ class JournalHandler(object):
     def sync_log(self):
         asyncio.ensure_future(self._sync_log())
 
+    async def _shutdown(self):
+        self.p.kill()
+        await self.p.wait()
+
     async def _sync_log(self):
-        # XXX: the major optimization to boost this is
-        # to load recent logs via -n <n> at a different
-        # task (similar to sync_info) and transmit everything
-        # as an array. The here implemented solution send every
-        # thing line by line which is really slow ...
-        cmd = ["sudo", "journalctl", "-n", "500",  "-f", "-o", "json"]
+        cmd = ["journalctl", "-n", "500",  "-f", "-o", "json"]
         self.p = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
         while True:
             async for line in self.p.stdout:
                 if not self.queue.empty():
                     cmd = self.queue.get()
                     if cmd == "shutdown":
-                        # here we need to kill self.p followed by  await self.p.wait()
-                        return await asyncio.sleep(0.1)
+                        self._shutdown()
+                        return
                 eline = line.decode(locale.getpreferredencoding(False))
                 d = json.loads(eline)
                 data = dict()
@@ -47,16 +46,14 @@ class JournalHandler(object):
                 try:
                     ret = self.ws.send_json(data)
                 except RuntimeError:
-                    # probably clossed client connection (not called closed,
-                    # just closed window, we need to handle this gracefully
-                    # -> kill self.p and so on
+                    self._shutdown()
                     return
                 if ret: await ret
         return await self.p.wait()
 
 
     def sync_info(self):
-        cmd = "sudo journalctl -o json"
+        cmd = "journalctl -o json"
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output, _ = p.communicate()
         p_status = p.wait()
@@ -94,7 +91,7 @@ async def handle(request):
             elif msg.data == 'start':
                 jh.sync_log()
             else:
-                print("unknown websocket command")
+                log.debug("unknown websocket command {}".format(str(msg.data)))
         elif msg.type == aiohttp.WSMsgType.ERROR:
             print('ws connection closed with exception %s' % ws.exception())
     return ws
