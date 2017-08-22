@@ -22,7 +22,7 @@ try:
     import pympler.summary
     import pympler.muppy
 except:
-    pympler.summary = None
+    pympler = None
 
 
 
@@ -121,7 +121,7 @@ async def recuring_memory_output(conf):
 
 def init_debug_memory(conf):
     log.err("initialize memory debugging")
-    if not pympler.summary:
+    if not pympler:
         log.err("pympler not installed, memory_debug not possible")
         return
     asyncio.ensure_future(recuring_memory_output(conf))
