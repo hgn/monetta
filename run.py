@@ -147,6 +147,8 @@ def parse_args():
     if not args.configuration:
         emsg = "Configuration required, please specify a valid file path, exiting now"
         sys.stderr.write("{}\n".format(emsg))
+        emsg = "E.g.: \"./run.py -f assets/monetta.conf\""
+        sys.stderr.write("{}\n".format(emsg))
         sys.exit(EXIT_FAILURE)
     return args
 
@@ -190,6 +192,6 @@ def conf_init():
 
 if __name__ == '__main__':
     info_str = sys.version.replace('\n', ' ')
-    log.warning("starting monetta (python: {})".format(info_str))
+    log.warning("Starting monetta (python: {})".format(info_str))
     conf = conf_init()
     main(conf)

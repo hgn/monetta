@@ -1,0 +1,9 @@
+[Unit]
+Description=Monetta - Monitoring and Logging Service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/share/monetta/run.py -f /etc/monetta/monetta.conf
+
+[Install]
+WantedBy=multi-user.target
