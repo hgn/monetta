@@ -25,19 +25,6 @@ def system_load_all():
             cputotal = (cputotal + i)
         return(float(cputotal))
 
-def process_stat_data_by_pid(pid):
-    with open(os.path.join('/proc/', str(pid), 'stat'), 'r') as pidfile:
-        proctimes = pidfile.readline()
-        procdata = proctimes.split(' ')
-        utime, stime = procdata[13], procdata[14]
-        cutime, cstime = procdata[15], procdata[16]
-        vsize, rss = procdata[22], procdata[23]
-        return sum(map(int, (utime, stime, cutime, cstime)))
-
-def calc_cpu_load_delta(process_cur, process_prev, system_cur, system_prev):
-    pass
-
-
 def state_abbrev_full(char):
     return {
             'R': 'running',
@@ -93,13 +80,13 @@ def update_cpu_usage_process(process_db, system_load_prev, system_load_cur):
     for k, v in process_db.items():
         process_load_cur = process_load_sum(v)
         if not 'sucscutime' in v:
-            # happends once
+            # happens once
             v['sucscutime'] = process_load_cur
             continue
         process_load_prev = v['sucscutime']
-        res = ((process_load_cur - process_load_prev) / (system_load_cur - system_load_prev) * 100)
+        res = (process_load_cur - process_load_prev) / (system_load_cur - system_load_prev) * 100
         res *= active_cpus
-        print('pid: {} -> cpu: {} %'.format(v['comm'], res))
+        v['load'] = int(res)
         v['sucscutime'] = process_load_cur
 
 def update_cpu_usage(system_db, process_db):
@@ -156,23 +143,6 @@ while True:
     processes_update(system_db, process_db)
     update_cpu_usage(system_db, process_db)
     print('time: {}'.format(time.time() - s))
-    #process_show(process_db)
-    #system_show(system_db)
-
-
-sys.exit(1)
-
-pid_no = 4541
-system_prev = system_data()
-pid_prev = process_stat_data_by_pid(pid_no)
-time.sleep(1)
-while True:
-    system = system_data()
-    pid = process_stat_data_by_pid(pid_no)
-    res = ((pid - pid_prev) / (system - system_prev) * 100)
-    res *= active_cpus
-    print('pid: {} -> cpu: {} %'.format(pid_no, res))
-
-    time.sleep(2)
-    system_prev = system
-    pid_prev = pid
+    process_show(process_db)
+    system_show(system_db)
+    time.sleep(1)
