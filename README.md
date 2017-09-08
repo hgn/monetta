@@ -4,14 +4,19 @@ A Logging and System Monitoring Web Server
 
 ## Problem Statement
 
-Every project, including embedded project need at least a logging
-infrastructure. Piping the logging data via netcat to a client written
-in QT is fine but has drawbacks: cross platform limitations, software
-distribution, keep the API stable and backward compatible with old clients,
+Every mid-size and larger project - including embedded projects - requires at
+least a logging infrastructure. Piping the logging data via netcat to a client
+written in QT is fine but has drawbacks: cross platform limitations, software
+distribution, stable and and backward compatible APIs to serve old clients,
 writing nice GUIs, etc.
 
 Monetta try to address this problem by using modern web technologies and
-simultaneously try to be resource friendly.
+simultaneously try to be resource friendly - at least try to do so:
+
+```
+  USS      PSS      RSS
+23264    24320    29404
+```
 
 Monetta is released under a liberal licence - use it in your project without
 any pain!
