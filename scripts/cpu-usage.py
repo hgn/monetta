@@ -6,6 +6,7 @@ import sys
 import time
 import multiprocessing
 import resource
+import re
 
 active_cpus = multiprocessing.cpu_count()
 page_size = resource.getpagesize()
@@ -47,29 +48,39 @@ def state_abbrev_full(char):
             't': 'tracing'
     }.get(char, 'unknown ({})'.format(char))
 
+def extract_stat_data(db_entry, procdata):
+    db_entry['state'] = state_abbrev_full(procdata[0])
+    db_entry['ppid'] = int(procdata[1])
+    db_entry['minflt'] = int(procdata[7])
+    db_entry['majflt'] = int(procdata[9])
+    db_entry['utime'] = int(procdata[11])
+    db_entry['stime'] = int(procdata[12])
+    db_entry['cutime'] = int(procdata[13])
+    db_entry['cstime'] = int(procdata[14])
+    db_entry['priority'] = int(procdata[15])
+    db_entry['nice'] = int(procdata[16])
+    db_entry['num_threads'] = int(procdata[17])
+    db_entry['vsize'] = int(procdata[20])
+    db_entry['rss'] = int(procdata[21])
+    db_entry['processor'] = int(procdata[36])
+    db_entry['rt_priority'] = int(procdata[37])
+    db_entry['policy'] = int(procdata[38])
+
+def split_and_pid_name_process(line):
+    regex = '^(\d+)\W+\((.*)\)\W+(.*)'
+    r = re.search(regex, line)
+    if not r: return False, None, None, None
+    return True, r.group(1), r.group(2), r.group(3)
+
 def process_stat_data_by_pid_ng(pid, db_entry):
     with open(os.path.join('/proc/', str(pid), 'stat'), 'r') as pidfile:
         proctimes = pidfile.readline()
-        procdata = proctimes.split(' ')
-        # we save the process name, and return parentheses "(cat)"
-        db_entry['comm'] = procdata[1][1:-1]
-        db_entry['state'] = state_abbrev_full(procdata[2])
-        db_entry['ppid'] = int(procdata[3])
-        db_entry['minflt'] = int(procdata[9])
-        db_entry['majflt'] = int(procdata[11])
-        db_entry['utime'] = int(procdata[13])
-        db_entry['stime'] = int(procdata[14])
-        db_entry['cutime'] = int(procdata[15])
-        db_entry['cstime'] = int(procdata[16])
-        db_entry['priority'] = int(procdata[17])
-        db_entry['nice'] = int(procdata[18])
-        db_entry['num_threads'] = int(procdata[19])
-        db_entry['vsize'] = int(procdata[22])
-        db_entry['rss'] = int(procdata[23])
-        db_entry['processor'] = int(procdata[38])
-        db_entry['rt_priority'] = int(procdata[39])
-        db_entry['policy'] = int(procdata[40])
-
+        ok, pid, name, remain = split_and_pid_name_process(proctimes)
+        if not ok:
+            print("corrupt /proc stat entry")
+            return
+        db_entry['comm'] = name
+        extract_stat_data(db_entry, remain.split(' '))
 
 def processes_update(system_db, db):
     no_processes = 0
@@ -81,12 +92,10 @@ def processes_update(system_db, db):
         if not pid in db:
             #print("new process: {}".format(pid))
             process_db[pid] = dict()
-            process_db[pid]['genesis'] = 'new'
         else:
             # process still alive, not a purge
             # candidate
             old_pids.remove(pid)
-            process_db[pid]['genesis'] = 'old'
         try:
             process_stat_data_by_pid_ng(pid, process_db[pid])
         except FileNotFoundError:
@@ -115,8 +124,8 @@ system_db = dict()
 while True:
     s = time.time()
     processes_update(system_db, process_db)
-    #print('time: {}'.format(time.time() - s))
-    process_show(process_db)
+    print('time: {}'.format(time.time() - s))
+    #process_show(process_db)
     #system_show(system_db)
 
 
