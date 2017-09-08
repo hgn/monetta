@@ -15,7 +15,7 @@ print("no active CPUs: {}".format(active_cpus))
 print("page size: {}".format(page_size))
 
 
-def system_data():
+def system_load_all():
     with open('/proc/stat', 'r') as procfile:
         cputimes = procfile.readline()
         cputotal = 0
@@ -82,6 +82,36 @@ def process_stat_data_by_pid_ng(pid, db_entry):
         db_entry['comm'] = name
         extract_stat_data(db_entry, remain.split(' '))
 
+def process_load_sum(v):
+    return v['stime'] + v['utime'] + v['cstime'] + v['cutime']
+
+def process_load_stamp_all(process_db):
+    for v in process_db.values():
+        v['sucscutime'] = process_load_sum(v)
+
+def update_cpu_usage_process(process_db, system_load_prev, system_load_cur):
+    for k, v in process_db.items():
+        process_load_cur = process_load_sum(v)
+        if not 'sucscutime' in v:
+            # happends once
+            v['sucscutime'] = process_load_cur
+            continue
+        process_load_prev = v['sucscutime']
+        res = ((process_load_cur - process_load_prev) / (system_load_cur - system_load_prev) * 100)
+        res *= active_cpus
+        print('pid: {} -> cpu: {} %'.format(v['comm'], res))
+        v['sucscutime'] = process_load_cur
+
+def update_cpu_usage(system_db, process_db):
+    system_load_cur = system_load_all()
+    if not 'system-load-prev' in system_db:
+        # happends once
+        system_db['system-load-prev'] = system_load_cur
+        return
+    system_load_prev = system_db['system-load-prev']
+    update_cpu_usage_process(process_db, system_load_prev, system_load_cur)
+    system_db['system-load-prev'] = system_load_cur
+
 def processes_update(system_db, db):
     no_processes = 0
     old_pids = list(db.keys())
@@ -124,6 +154,7 @@ system_db = dict()
 while True:
     s = time.time()
     processes_update(system_db, process_db)
+    update_cpu_usage(system_db, process_db)
     print('time: {}'.format(time.time() - s))
     #process_show(process_db)
     #system_show(system_db)
