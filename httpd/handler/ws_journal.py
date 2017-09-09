@@ -53,7 +53,7 @@ class JournalHandler(object):
                 try:
                     ret = self.ws.send_json(data)
                 except RuntimeError:
-                    self._shutdown()
+                    await self._shutdown()
                     return
                 if ret: await ret
         return await self.p.wait()
