@@ -11,6 +11,7 @@ import datetime
 import multiprocessing
 import resource
 import re
+import os
 
 from collections import OrderedDict
 from aiohttp import web
@@ -133,7 +134,7 @@ class ResourceHandler(object):
             data = dict()
             data['cpu-load'] = dict()
             data['cpu-load']['data'] = cpu_load
-            data['cpu-load']['time'] = ResourceHandler.monetta_time_now()
+            data['cpu-load']['time'] = self.monetta_time_now()
             try:
                 ret = self.ws.send_json(data)
                 if ret: await ret
@@ -143,12 +144,10 @@ class ResourceHandler(object):
                 # -> kill self.p and so on
                 return
 
-    @staticmethod
-    def monetta_time_now():
+    def monetta_time_now(self):
         now = datetime.datetime.now()
         return "{}-{}-{} {}:{}:{}".format(now.year, now.month, now.day, now.hour, now.minute, now.second)
 
-    @staticmethod
     def system_load_all(self):
         with open('/proc/stat', 'r') as procfile:
             cputimes = procfile.readline()
@@ -159,8 +158,7 @@ class ResourceHandler(object):
                 cputotal = (cputotal + i)
             return(float(cputotal))
 
-    @staticmethod
-    def tate_abbrev_full(char):
+    def state_abbrev_full(self, char):
         return {
                 'R': 'running',
                 'S': 'sleeping',
@@ -170,11 +168,10 @@ class ResourceHandler(object):
                 't': 'tracing'
         }.get(char, 'unknown ({})'.format(char))
 
-    @staticmethod
-    def extract_stat_data(db_entry, procdata):
+    def extract_stat_data(self, db_entry, procdata):
         # init with zero
         db_entry['load'] = 0
-        db_entry['state'] = state_abbrev_full(procdata[0])
+        db_entry['state'] = self.state_abbrev_full(procdata[0])
         db_entry['utime'] = int(procdata[11])
         db_entry['stime'] = int(procdata[12])
         db_entry['cutime'] = int(procdata[13])
@@ -191,37 +188,28 @@ class ResourceHandler(object):
         #db_entry['minflt'] = int(procdata[7])
         #db_entry['majflt'] = int(procdata[9])
 
-    @staticmethod
-    def split_and_pid_name_process(line):
+    def split_and_pid_name_process(self, line):
         regex = '^(\d+)\W+\((.*)\)\W+(.*)'
         r = re.search(regex, line)
         if not r: return False, None, None, None
         return True, r.group(1), r.group(2), r.group(3)
 
-    @staticmethod
-    def process_stat_data_by_pid_ng(pid, db_entry):
+    def process_stat_data_by_pid_ng(self, pid, db_entry):
         with open(os.path.join('/proc/', str(pid), 'stat'), 'r') as pidfile:
             proctimes = pidfile.readline()
-            ok, pid, name, remain = split_and_pid_name_process(proctimes)
+            ok, pid, name, remain = self.split_and_pid_name_process(proctimes)
             if not ok:
                 print("corrupt /proc stat entry")
                 return
             db_entry['comm'] = name
-            extract_stat_data(db_entry, remain.split(' '))
+            self.extract_stat_data(db_entry, remain.split(' '))
 
-    @staticmethod
-    def process_load_sum(v):
+    def process_load_sum(self, v):
         return v['stime'] + v['utime'] + v['cstime'] + v['cutime']
 
-    @staticmethod
-    def process_load_stamp_all(process_db):
-        for v in process_db.values():
-            v['cutime_prev'] = process_load_sum(v)
-
-    @staticmethod
-    def update_cpu_usage_process(process_db, system_load_prev, system_load_cur):
+    def update_cpu_usage_process(self, process_db, system_load_prev, system_load_cur):
         for k, v in process_db.items():
-            process_load_cur = process_load_sum(v)
+            process_load_cur = self.process_load_sum(v)
             if not 'cutime_prev' in v:
                 # happens once
                 v['cutime_prev'] = process_load_cur
@@ -233,26 +221,24 @@ class ResourceHandler(object):
             v['load'] = int(res)
             v['cutime_prev'] = process_load_cur
 
-    @staticmethod
-    def update_cpu_usage(system_db, process_db):
-        system_load_cur = system_load_all()
+    def update_cpu_usage(self, system_db, process_db):
+        system_load_cur = self.system_load_all()
         if not 'system-load-prev' in system_db:
             # happends once
             system_db['system-load-prev'] = system_load_cur
             return
         system_load_prev = system_db['system-load-prev']
-        update_cpu_usage_process(process_db, system_load_prev, system_load_cur)
+        self.update_cpu_usage_process(process_db, system_load_prev, system_load_cur)
         system_db['system-load-prev'] = system_load_cur
 
-    @staticmethod
-    def processes_update(system_db, db):
+    def processes_update(self, system_db, process_db):
         no_processes = 0
-        old_pids = set(db.keys())
+        old_pids = set(process_db.keys())
         for pid in os.listdir('/proc'):
             if not pid.isdigit(): continue
             no_processes += 1
             pid = int(pid)
-            if not pid in db:
+            if not pid in process_db:
                 #print("new process: {}".format(pid))
                 process_db[pid] = dict()
             else:
@@ -260,13 +246,13 @@ class ResourceHandler(object):
                 # candidate
                 old_pids.remove(pid)
             try:
-                process_stat_data_by_pid_ng(pid, process_db[pid])
+                self.process_stat_data_by_pid_ng(pid, process_db[pid])
             except FileNotFoundError:
                 # process died just now, update datastructures
                 # re-insert, next loop will remove entry
                 old_pids.add(pid)
         for dead_childs in old_pids:
-            del db[dead_childs]
+            del process_db[dead_childs]
             #print('dead childs: {}'.format(dead_childs))
         system_db['process-no'] = no_processes
         return process_db
@@ -279,18 +265,34 @@ class ResourceHandler(object):
         The client must order the data for their requirement
         """
         ret = dict()
+        ret['process-data'] = dict()
         process_list = list()
         for vals in sorted(process_db.items(), key=lambda k_v: k_v[1]['load'], reverse=True):
             k, v = vals
             process_entry = v.copy()
             process_entry['pid'] = k
             process_list.append(process_entry)
-        ret['process-list'] = process_list
+        ret['process-data']['process-list'] = process_list
+        return ret
 
 
     async def _sync_process_utilization(self):
+        process_db = dict()
+        system_db = dict()
+        update_interval = 5
+
         while True:
-            return
+            calc_start = time.time()
+            self.processes_update(system_db, process_db)
+            self.update_cpu_usage(system_db, process_db)
+            calc_time = time.time() - calc_start
+            data = self.prepare_data(system_db, process_db, update_interval)
+            try:
+                ret = self.ws.send_json(data)
+                if ret: await ret
+            except RuntimeError:
+                return
+            await asyncio.sleep(update_interval)
 
 
 async def handle(request):

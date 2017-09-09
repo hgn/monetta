@@ -106,6 +106,7 @@ function dataCpuGraph(data, data_time) {
 function wsOnOpen(event) {
     ws_socket.send("start-cpu-utilization");
     ws_socket.send("get-meminfo");
+    ws_socket.send("start-process-utilization");
 }
 
 function sleep(ms) {
@@ -256,6 +257,8 @@ function wsOnMessage(event) {
 				processCpuLoad(jdata['cpu-load']);
             } else if ('meminfo' in jdata) {
                 processMeminfoData(jdata['meminfo'])
+            } else if ('process-data' in jdata) {
+                console.log(jdata['process-data'])
 			} else {
 				console.log("data not handled");
 			}
