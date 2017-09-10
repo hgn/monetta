@@ -55,9 +55,11 @@ def extract_stat_data(db_entry, procdata):
     #db_entry['minflt'] = int(procdata[7])
     #db_entry['majflt'] = int(procdata[9])
 
+h = re.compile('^(\d+)\W+\((.*)\)\W+(.*)')
+
 def split_and_pid_name_process(line):
-    regex = '^(\d+)\W+\((.*)\)\W+(.*)'
-    r = re.search(regex, line)
+    #regex = '^(\d+)\W+\((.*)\)\W+(.*)'
+    r = re.search(h, line)
     if not r: return False, None, None, None
     return True, r.group(1), r.group(2), r.group(3)
 
@@ -157,14 +159,14 @@ def system_show(db):
 
 process_db = dict()
 system_db = dict()
-update_interval = 5
+update_interval = 1
 while True:
     calc_start = time.time()
     processes_update(system_db, process_db)
-    update_cpu_usage(system_db, process_db)
     calc_time = time.time() - calc_start
+    update_cpu_usage(system_db, process_db)
+    print('time: {}'.format(time.time() - calc_start))
     prepare_data(system_db, process_db, update_interval)
-    print('time: {}'.format(time.time() - s))
     #process_show(process_db)
     #system_show(system_db)
     time.sleep(update_interval)

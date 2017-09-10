@@ -258,7 +258,7 @@ function wsOnMessage(event) {
             } else if ('meminfo' in jdata) {
                 processMeminfoData(jdata['meminfo'])
             } else if ('process-data' in jdata) {
-                console.log(jdata['process-data'])
+                processProcessData(jdata['process-data'])
 			} else {
 				console.log("data not handled");
 			}
@@ -401,4 +401,49 @@ function prettyNumber(pBytes) {
     } else {
         return result.toFixed(2) + ' ' + abbreviations[i];
     }
+}
+
+function processTableHeader() {
+	return '<table class="table table-sm table-hover">' +
+		'<thead><tr>' +
+		'<th>PID</th>' +
+		'<th>Name</th>' +
+		'<th>State</th>' +
+		'<th>Load [%]</th>' +
+		'<th>CPU</th>' +
+		'<th># Threads</th>' +
+		'<th>Nice</th>' +
+		'<th>Priority</th>' +
+		'<th>RSS</th>' +
+		'</tr> </thead> <tbody> '
+}
+
+function processTableEntry(entry) {
+	return '<tr>' +
+		       '<td>' + entry['pid'] + '</td>' +
+		       '<td>' + entry['comm'] + '</td>' +
+		       '<td>' + entry['state'] + '</td>' +
+		       '<td>' + entry['load'] + '</td>' +
+		       '<td>' + entry['processor'] + '</td>' +
+		       '<td>' + entry['num_threads'] + '</td>' +
+		       '<td>' + entry['nice'] + '</td>' +
+		       '<td>' + entry['priority'] + '</td>' +
+		       '<td>' + prettyNumber(entry['rss']) + '</td>' +
+		      '</tr>';
+}
+
+function processTableFooter() {
+	return '</tbody> </table>'
+}
+
+
+function processProcessData(rawData) {
+	let output = document.getElementById("process-table");
+
+	let str = processTableHeader();
+	for (let entry of rawData['process-list']) {
+		str += processTableEntry(entry);
+	}
+	str += processTableFooter();
+	output.innerHTML = str;
 }

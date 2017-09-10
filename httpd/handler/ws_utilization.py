@@ -188,9 +188,11 @@ class ResourceHandler(object):
         #db_entry['minflt'] = int(procdata[7])
         #db_entry['majflt'] = int(procdata[9])
 
+    matcher = re.compile('^(\d+)\W+\((.*)\)\W+(.*)')
+
     def split_and_pid_name_process(self, line):
-        regex = '^(\d+)\W+\((.*)\)\W+(.*)'
-        r = re.search(regex, line)
+        #regex = '^(\d+)\W+\((.*)\)\W+(.*)'
+        r = re.search(ResourceHandler.matcher, line)
         if not r: return False, None, None, None
         return True, r.group(1), r.group(2), r.group(3)
 
@@ -258,7 +260,7 @@ class ResourceHandler(object):
         return process_db
 
     @staticmethod
-    def prepare_data(system_db, process_db, update_interval):
+    def prepare_data(system_db, process_db, update_interval, calc_time):
         """
         we do not generate a ordering, that the list is now ordered by
         load is just luck[TM], this may change in the future.
@@ -273,6 +275,8 @@ class ResourceHandler(object):
             process_entry['pid'] = k
             process_list.append(process_entry)
         ret['process-data']['process-list'] = process_list
+        ret['process-data']['update-interval'] = update_interval
+        ret['process-data']['calc-time'] = calc_time
         return ret
 
 
@@ -286,7 +290,8 @@ class ResourceHandler(object):
             self.processes_update(system_db, process_db)
             self.update_cpu_usage(system_db, process_db)
             calc_time = time.time() - calc_start
-            data = self.prepare_data(system_db, process_db, update_interval)
+            data = self.prepare_data(system_db, process_db,
+                                    update_interval, calc_time)
             try:
                 ret = self.ws.send_json(data)
                 if ret: await ret
