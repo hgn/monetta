@@ -418,12 +418,31 @@ function processTableHeader() {
 		'</tr> </thead> <tbody> '
 }
 
+function cpuLoadBar(percent) {
+	let progessBarWidth = Math.min(percent, 100);
+	let progessBarLevel = 'bg-success'
+	console.log(progessBarWidth)
+	if (progessBarWidth > 10) {
+		progessBarLevel = 'bg-warning'
+	}
+	if (progessBarWidth > 50) {
+		progessBarLevel = 'bg-danger'
+	}
+	let str  = '<div class="progress">'
+	    str += '<div class="progress-bar progress-bar-striped progress-bar-animated ' + progessBarLevel +'" '
+	    str += 'role="progressbar" style="width:' + progessBarWidth + '%" '
+	    str += 'aria-valuenow="' + progessBarWidth
+		  str += '" aria-valuemin="0" aria-valuemax="100">' + percent
+	    str += '</div></div>'
+	return str
+}
+
 function processTableEntry(entry) {
 	return '<tr>' +
 		       '<td>' + entry['pid'] + '</td>' +
 		       '<td>' + entry['comm'] + '</td>' +
 		       '<td>' + entry['state'] + '</td>' +
-		       '<td>' + entry['load'] + '</td>' +
+		       '<td>' + cpuLoadBar(entry['load']) + '</td>' +
 		       '<td>' + entry['processor'] + '</td>' +
 		       '<td>' + entry['num_threads'] + '</td>' +
 		       '<td>' + entry['nice'] + '</td>' +
