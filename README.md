@@ -2,7 +2,7 @@
 
 A Logging and System Monitoring Web Server
 
-
+![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screen-utilization.png)
 
 ## Problem Statement
 
