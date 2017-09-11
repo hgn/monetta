@@ -12,12 +12,29 @@ $(document).ready(function() {
 		initWebSockets();
 	}
 
+  initButtons();
 });
+
+function initButtons() {
+  $('#sync-toggle').on('click', 'label.btn', function(e) {
+    if (e.target.id == 'on') {
+			mySocket.send("journal-sync-start");
+    } else {
+			mySocket.send("journal-sync-stop");
+    }
+    return
+    if ($(this).hasClass('active')) {
+      setTimeout(function() {
+        $(this).removeClass('active').find('input').prop('checked', false);
+      }.bind(this), 10);
+    }
+  });
+}
 
 function wsOnOpen(event) {
 	mySocket.send("history");
 	mySocket.send("info");
-	mySocket.send("start");
+	mySocket.send("journal-sync-start");
 }
 
 // this is why JS is so f*cking stupid, see callsites
@@ -208,32 +225,32 @@ function processJournalInfoData(data) {
 }
 
 function wsOnMessage(event) {
-		console.timeEnd("WS");
-			var jdata = JSON.parse(event.data);
-			if ('data-log-entry' in jdata) {
-				processJournalEntryData(jdata['data-log-entry']);
-            } else if ('data-log-entries' in jdata) {
-				processJournalEntriesData(jdata['data-log-entries']);
-			} else if ('data-info' in jdata) {
-				processJournalInfoData(jdata['data-info']);
-			} else {
-				console.log("data not handled");
-			}
+	var jdata = JSON.parse(event.data);
+	if ('data-log-entry' in jdata) {
+		processJournalEntryData(jdata['data-log-entry']);
+	} else if ('data-log-entries' in jdata) {
+		processJournalEntriesData(jdata['data-log-entries']);
+	} else if ('data-info' in jdata) {
+		processJournalInfoData(jdata['data-info']);
+	} else {
+		console.log("data not handled");
+	}
 }
 
 function initWebSockets() {
-    try {
+	try {
 
-        try {
-            mySocket = new WebSocket('ws://' + window.location.host + '/ws-journal');
-        }
-        catch(err) {
-            mySocket = new WebSocket('wss://' + window.location.host + '/ws-journal');
-        }
-        mySocket.onmessage = wsOnMessage;
-        mySocket.onopen    = wsOnOpen;
+		try {
+			mySocket = new WebSocket('ws://' + window.location.host + '/ws-journal');
+		}
+		catch(err) {
+			mySocket = new WebSocket('wss://' + window.location.host + '/ws-journal');
+		}
+		mySocket.onmessage = wsOnMessage;
+		mySocket.onopen    = wsOnOpen;
 
-    } catch(exception){
-        console.log('Error' + exception);
-    }
+	} catch(exception){
+		console.log('Error' + exception);
+	}
 }
+

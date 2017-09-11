@@ -18,16 +18,31 @@ class JournalHandler(object):
     def __init__(self, ws):
         self.ws = ws
         self.queue = asyncio.Queue()
+        self.state_sync_started = False
 
     async def shutdown(self):
         await self.queue.put("shutdown")
 
+
+    def journal_sync_stop(self):
+        asyncio.ensure_future(self._shutdown())
+
     def sync_log(self):
+        print('start')
+        if self.state_sync_started:
+            print("already started, no additional start possible")
+            return
         asyncio.ensure_future(self._sync_log())
+        self.state_sync_started = True
 
     async def _shutdown(self):
+        print('shutdown')
+        if not self.state_sync_started:
+            await asyncio.sleep(0.001)
+            return
         self.p.kill()
-        await self.p.wait()
+        self.state_sync_started = False
+        print('shutdown return')
 
     async def _sync_log(self):
         # XXX this is a workaround for double transmitted
@@ -112,8 +127,10 @@ async def handle(request):
                 jh.sync_info()
             elif msg.data == 'history':
                 jh.sync_history()
-            elif msg.data == 'start':
+            elif msg.data == 'journal-sync-start':
                 jh.sync_log()
+            elif msg.data == 'journal-sync-stop':
+                jh.journal_sync_stop()
             else:
                 log.debug("unknown websocket command {}".format(str(msg.data)))
         elif msg.type == aiohttp.WSMsgType.ERROR:
