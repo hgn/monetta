@@ -73,7 +73,7 @@ class JournalHandler(object):
                 if ret: await ret
         return await self.p.wait()
 
-    def sync_history(self):
+    async def sync_history(self):
         cmd = "journalctl -n 500 -o json"
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output, _ = p.communicate()
@@ -87,9 +87,9 @@ class JournalHandler(object):
         journal_data = json.loads(data_list)
         data = dict()
         data['data-log-entries'] = journal_data
-        self.ws.send_json(data)
+        await self.ws.send_json(data)
 
-    def sync_info(self):
+    async def sync_info(self):
         cmd = "journalctl -o json"
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output, _ = p.communicate()
@@ -103,7 +103,7 @@ class JournalHandler(object):
         data = dict()
         data['data-info'] = dict()
         data['data-info']['list-comm'] = list(set_comm)
-        self.ws.send_json(data)
+        await self.ws.send_json(data)
 
 
 async def handle(request):
@@ -124,9 +124,9 @@ async def handle(request):
                 await jh.shutdown()
                 return ws
             if msg.data == 'info':
-                jh.sync_info()
+                await jh.sync_info()
             elif msg.data == 'history':
-                jh.sync_history()
+                await jh.sync_history()
             elif msg.data == 'journal-sync-start':
                 jh.sync_log()
             elif msg.data == 'journal-sync-stop':

@@ -2,6 +2,7 @@
 
 var mySocket;
 var journalEntryArray = [];
+var filter = "";
 
 $(document).ready(function() {
 
@@ -12,8 +13,17 @@ $(document).ready(function() {
 		initWebSockets();
 	}
 
-  initButtons();
+	initButtons();
+	registerFilter();
 });
+
+function registerFilter() {
+	$("#logfilter").keyup(function() {
+		filter = $(this).val();
+		console.log(filter);
+		redrawJournalList();
+	});
+}
 
 function initButtons() {
   $('#sync-toggle').on('click', 'label.btn', function(e) {
@@ -189,7 +199,13 @@ function processJournalEntryData(data) {
 function redrawJournalList() {
 	var newstr = ""
 	for (var i = journalEntryArray.length - 1; i > 0; i--) {
-		//console.log(journalEntryArray[i]);
+	  // if a filter was set we ignore all messages not
+		// matching the string, we using includes() here,
+		// no fancy regex, etc.
+		if (filter != "") {
+			if (!journalEntryArray[i].message.toLowerCase().includes(filter.toLowerCase()))
+				continue
+		}
 		newstr = newstr
 			+ '<a href="#myModal" data-toggle="modal" class="list-group-item list-group-item-action flex-column align-items-start '
 		  + itemSelectPriorityColor(journalEntryArray[i]) + '">'
