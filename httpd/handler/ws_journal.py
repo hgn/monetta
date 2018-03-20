@@ -40,7 +40,7 @@ class JournalHandler(object):
         if not self.state_sync_started:
             await asyncio.sleep(0.001)
             return
-        self.p.kill()
+        #self.p.kill()
         self.state_sync_started = False
         print('shutdown return')
 
