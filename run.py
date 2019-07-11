@@ -17,6 +17,7 @@ from httpd.utils import log
 from httpd.handler import api_ping
 from httpd.handler import ws_journal
 from httpd.handler import ws_utilization
+from httpd.handler import ws_process
 
 try:
     import pympler.summary
@@ -60,6 +61,13 @@ async def handle_utilization(request):
         content = str.encode(content_file.read())
         return web.Response(body=content, content_type='text/html')
 
+async def handle_process(request):
+    root = request.app['path-root']
+    full = os.path.join(root, "httpd/assets/webpage/process.html")
+    with open(full, 'r') as content_file:
+        content = str.encode(content_file.read())
+        return web.Response(body=content, content_type='text/html')
+
 async def handle_index(request):
     raise web.HTTPFound('journal')
 
@@ -67,9 +75,11 @@ def setup_routes(app, conf):
     app.router.add_route('GET', '/api/v1/ping', api_ping.handle)
     app.router.add_route('GET', '/ws-journal', ws_journal.handle)
     app.router.add_route('GET', '/ws-utilization', ws_utilization.handle)
+    app.router.add_route('GET', '/ws-process', ws_process.handle)
 
     app.router.add_route('GET', '/journal', handle_journal)
     app.router.add_route('GET', '/utilization', handle_utilization)
+    app.router.add_route('GET', '/process', handle_process)
 
     path_assets = os.path.join(app['path-root'], "httpd/assets")
     app.router.add_static('/assets', path_assets, show_index=False)
