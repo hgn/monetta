@@ -409,6 +409,7 @@ function processTableHeader() {
 		'<th>PID</th>' +
 		'<th>Name</th>' +
 		'<th>State</th>' +
+		'<th>Wchan</th>' +
 		'<th>Load [%]</th>' +
 		'<th>CPU</th>' +
 		'<th># Threads</th>' +
@@ -443,6 +444,7 @@ function processTableEntry(entry) {
 		       '<td>' + entry['pid'] + '</td>' +
 		       '<td>' + entry['comm'] + '</td>' +
 		       '<td>' + entry['state'] + '</td>' +
+		       '<td>' + entry['wchan'] + '</td>' +
 		       '<td>' + cpuLoadBar(entry['load']) + '</td>' +
 		       '<td>' + entry['processor'] + '</td>' +
 		       '<td>' + entry['num_threads'] + '</td>' +
