@@ -168,8 +168,26 @@ class ResourceHandler(object):
                 't': 'tracing'
         }.get(char, 'unknown ({})'.format(char))
 
+    def policy_abbrev_full(self, number):
+        # define SCHED_NORMAL		0
+        # define SCHED_FIFO		1
+        # define SCHED_RR		2
+        # define SCHED_BATCH		3
+        # /* SCHED_ISO: reserved but not implemented yet */
+        # define SCHED_IDLE		5
+        # define SCHED_DEADLINE		6
+        return {
+                0: 'OTHER',
+                1: 'FIFO',
+                2: 'RR',
+                3: 'BATCH',
+                5: 'IDLE',
+                6: 'DEADLINE'
+        }.get(number, 'unknown ({})'.format(number))
+
     def extract_stat_data(self, db_entry, procdata):
-        # init with zero
+        # init with zero,
+        # offset by -3 in man proc
         db_entry['load'] = 0
         db_entry['state'] = self.state_abbrev_full(procdata[0])
         db_entry['utime'] = int(procdata[11])
@@ -181,6 +199,7 @@ class ResourceHandler(object):
         db_entry['num_threads'] = int(procdata[17])
         db_entry['rss'] = int(procdata[21]) * page_size
         db_entry['processor'] = int(procdata[36])
+        db_entry['policy'] = self.policy_abbrev_full(int(procdata[38]))
         #db_entry['vsize'] = int(procdata[20])
         #db_entry['rt_priority'] = int(procdata[37])
         #db_entry['policy'] = int(procdata[38])

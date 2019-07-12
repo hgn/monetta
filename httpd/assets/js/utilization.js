@@ -414,6 +414,7 @@ function processTableHeader() {
 		'<th># Threads</th>' +
 		'<th>Nice</th>' +
 		'<th>Priority</th>' +
+		'<th>Policy</th>' +
 		'<th>RSS</th>' +
 		'</tr> </thead> <tbody> '
 }
@@ -447,6 +448,7 @@ function processTableEntry(entry) {
 		       '<td>' + entry['num_threads'] + '</td>' +
 		       '<td>' + entry['nice'] + '</td>' +
 		       '<td>' + entry['priority'] + '</td>' +
+		       '<td>' + entry['policy'] + '</td>' +
 		       '<td>' + prettyNumber(entry['rss']) + '</td>' +
 		      '</tr>';
 }
