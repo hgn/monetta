@@ -287,7 +287,7 @@ function dataMeminfoGraph(data) {
 
     var height = 300;
     var width = document.getElementById('chart-memory').offsetWidth;
-    var radius = Math.min(width, height) / 2;
+    var radius = Math.min(width, height) / 2.0;
 
 
     // just remove the old svg and draw a new one
@@ -329,10 +329,10 @@ function dataMeminfoGraph(data) {
     g.append("text")
 			.attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
 			.attr("dy", ".35em")
-			.style("font", "14px sans-serif")
+			.style("font", "15px sans-serif")
 			.attr("text-anchor", "middle")
 			.text(function(d) { return d.data.title; })
-		//.style("text-shadow", "0 1px 0 #fff, 1px 0 0 #000, 0 -1px 0 #fff, -1px 0 0 #fff")
+		  .style("text-shadow", "1px 1px #fff")
 			.style("fill", "#333");
 }
 
@@ -409,7 +409,6 @@ function processTableHeader() {
 		'<th>PID</th>' +
 		'<th>Name</th>' +
 		'<th>State</th>' +
-		'<th>Wchan</th>' +
 		'<th>Load [%]</th>' +
 		'<th>CPU</th>' +
 		'<th># Threads</th>' +
@@ -444,7 +443,6 @@ function processTableEntry(entry) {
 		       '<td>' + entry['pid'] + '</td>' +
 		       '<td>' + entry['comm'] + '</td>' +
 		       '<td>' + entry['state'] + '</td>' +
-		       '<td>' + entry['wchan'] + '</td>' +
 		       '<td>' + cpuLoadBar(entry['load']) + '</td>' +
 		       '<td>' + entry['processor'] + '</td>' +
 		       '<td>' + entry['num_threads'] + '</td>' +

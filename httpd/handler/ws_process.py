@@ -7,6 +7,7 @@ import subprocess
 import locale
 import json
 import time
+import os
 
 from aiohttp import web
 
@@ -18,92 +19,86 @@ class JournalHandler(object):
     def __init__(self, ws):
         self.ws = ws
         self.queue = asyncio.Queue()
-        self.state_sync_started = False
 
-    async def shutdown(self):
-        await self.queue.put("shutdown")
+    def get_wchan(self, pid, db_entry):
+        db_entry['wchan'] = 'unknown'
+        try:
+            with open(os.path.join('/proc/', str(pid), 'wchan'), 'r') as pidfile:
+                wchan = pidfile.read().strip()
+                db_entry['wchan'] = wchan
+        except:
+            # just ignore for this pid
+            pass
 
+    def get_comm(self, pid, db_entry):
+        db_entry['comm'] = 'unknown'
+        try:
+            with open(os.path.join('/proc/', str(pid), 'comm'), 'r') as pidfile:
+                ret = pidfile.read().strip()
+                db_entry['comm'] = ret
+        except:
+            # just ignore for this pid
+            pass
 
-    def journal_sync_stop(self):
-        asyncio.ensure_future(self._shutdown())
+    def get_syscall(self, pid, db_entry):
+        db_entry['syscall'] = 'unknown'
+        try:
+            with open(os.path.join('/proc/', str(pid), 'syscall'), 'r') as pidfile:
+                ret = pidfile.read().strip()[0]
+                db_entry['syscall'] = ret
+        except:
+            # just ignore for this pid
+            pass
 
-    def sync_log(self):
-        print('start')
-        if self.state_sync_started:
-            print("already started, no additional start possible")
-            return
-        asyncio.ensure_future(self._sync_log())
-        self.state_sync_started = True
+    def get_cpu_set(self, pid, db_entry):
+        db_entry['cpu-set'] = '-'
+        try:
+            with open(os.path.join('/proc/', str(pid), 'cpuset'), 'r') as pidfile:
+                ret = pidfile.read().strip()
+                db_entry['cpu-set'] = ret
+        except:
+            # just ignore for this pid
+            pass
 
-    async def _shutdown(self):
-        print('shutdown')
-        if not self.state_sync_started:
-            await asyncio.sleep(0.001)
-            return
-        #self.p.kill()
-        self.state_sync_started = False
-        print('shutdown return')
+    def processes_update(self, process_db):
+        no_processes = 0
+        old_pids = set(process_db.keys())
+        for pid in os.listdir('/proc'):
+            if not pid.isdigit(): continue
+            no_processes += 1
+            pid = int(pid)
+            if not pid in process_db:
+                process_db[pid] = dict()
+                process_db[pid]['pid'] = pid
+            else:
+                old_pids.remove(pid)
+            try:
+                self.get_wchan(pid, process_db[pid])
+                self.get_syscall(pid, process_db[pid])
+                self.get_comm(pid, process_db[pid])
+                self.get_cpu_set(pid, process_db[pid])
+            except FileNotFoundError:
+                # process died just now, update datastructures
+                # re-insert, next loop will remove entry
+                old_pids.add(pid)
+        for dead_childs in old_pids:
+            del process_db[dead_childs]
+            #print('dead childs: {}'.format(dead_childs))
+        #system_db['process-no'] = no_processes
 
-    async def _sync_log(self):
-        # XXX this is a workaround for double transmitted
-        # log entries. This call is probably soo fast called
-        # that the other journalctl process is still reading.
-        # so we see two times the last entry. This short read
-        # will prevent this from happen, at least at the test
-        # platform ... --hgn
-        await asyncio.sleep(0.2)
-        cmd = ["journalctl", "-n", "0",  "-f", "-o", "json"]
-        self.p = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
-        while True:
-            async for line in self.p.stdout:
-                if not self.queue.empty():
-                    cmd = self.queue.get()
-                    if cmd == "shutdown":
-                        self._shutdown()
-                        return
-                eline = line.decode(locale.getpreferredencoding(False))
-                d = json.loads(eline)
-                data = dict()
-                data['data-log-entry'] = d
-                try:
-                    ret = self.ws.send_json(data)
-                except RuntimeError:
-                    await self._shutdown()
-                    return
-                if ret: await ret
-        return await self.p.wait()
-
-    async def sync_history(self):
-        cmd = "journalctl -n 500 -o json"
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        output, _ = p.communicate()
-        p_status = p.wait()
-        output = output.decode("utf-8")
-        # bring returned data into a valid json list/dict string
-        # with ,-separation and list braches.
-        data_list = ','.join(output.split('\n'))
-        data_list = data_list[:-1]
-        data_list = "[\n" + data_list + "\n]"
-        journal_data = json.loads(data_list)
-        data = dict()
-        data['data-log-entries'] = journal_data
-        await self.ws.send_json(data)
+    def prepare_data(self, process_db):
+        ret = dict()
+        ret['process-data'] = dict()
+        ret['process-data']['data'] = process_db
+        return ret
 
     async def sync_info(self):
-        cmd = "journalctl -o json"
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        output, _ = p.communicate()
-        p_status = p.wait()
-        output = output.decode("utf-8").rstrip()
-        set_comm = set()
-        for line in output.split("\n"):
-            data = json.loads(line)
-            if '_COMM' in data:
-                set_comm.add(data['_COMM'])
-        data = dict()
-        data['data-info'] = dict()
-        data['data-info']['list-comm'] = list(set_comm)
-        await self.ws.send_json(data)
+        process_db = dict()
+        while True:
+            self.processes_update(process_db)
+            data = self.prepare_data(process_db)
+            await self.ws.send_json(data)
+            await asyncio.sleep(5)
 
 
 async def handle(request):
@@ -121,16 +116,9 @@ async def handle(request):
         if msg.type == aiohttp.WSMsgType.TEXT:
             if msg.data == 'close':
                 await ws.close()
-                await jh.shutdown()
                 return ws
-            if msg.data == 'info':
+            elif msg.data == 'start-process-update':
                 await jh.sync_info()
-            elif msg.data == 'history':
-                await jh.sync_history()
-            elif msg.data == 'journal-sync-start':
-                jh.sync_log()
-            elif msg.data == 'journal-sync-stop':
-                jh.journal_sync_stop()
             else:
                 log.debug("unknown websocket command {}".format(str(msg.data)))
         elif msg.type == aiohttp.WSMsgType.ERROR:

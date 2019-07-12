@@ -162,10 +162,13 @@ class ResourceHandler(object):
         return {
                 'R': 'running',
                 'S': 'sleeping',
-                'D': 'waiting',
+                'D': 'disk sleep',
                 'Z': 'zombie',
                 'T': 'stopped',
-                't': 'tracing'
+                't': 'tracing stoped',
+                'X': 'dead',
+                'P': 'parked',
+                'I': 'idle',
         }.get(char, 'unknown ({})'.format(char))
 
     def policy_abbrev_full(self, number):
@@ -225,12 +228,6 @@ class ResourceHandler(object):
             db_entry['comm'] = name
             self.extract_stat_data(db_entry, remain.split(' '))
 
-    def process_wchan_data_by_pid_ng(self, pid, db_entry):
-        db_entry['wchan'] = 'unknown'
-        with open(os.path.join('/proc/', str(pid), 'wchan'), 'r') as pidfile:
-            wchan = pidfile.read().strip()
-            db_entry['wchan'] = wchan
-
     def process_load_sum(self, v):
         return v['stime'] + v['utime'] + v['cstime'] + v['cutime']
 
@@ -274,7 +271,6 @@ class ResourceHandler(object):
                 old_pids.remove(pid)
             try:
                 self.process_stat_data_by_pid_ng(pid, process_db[pid])
-                self.process_wchan_data_by_pid_ng(pid, process_db[pid])
             except FileNotFoundError:
                 # process died just now, update datastructures
                 # re-insert, next loop will remove entry
