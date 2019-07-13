@@ -101,14 +101,19 @@ class JournalHandler(object):
             await asyncio.sleep(5)
 
 
-async def handle(request):
+def log_peer(request):
     peername = request.transport.get_extra_info('peername')
     host = port = "unknown"
     if peername is not None:
         host, port = peername[0:2]
     log.debug("web journal socket request from {}[{}]".format(host, port))
 
-    ws = web.WebSocketResponse()
+
+async def handle(request):
+    if False:
+        log_peer(request)
+
+    ws = web.WebSocketResponse(heartbeat=5, autoping=True)
     await ws.prepare(request)
 
     jh = JournalHandler(ws)
@@ -122,7 +127,15 @@ async def handle(request):
             else:
                 log.debug("unknown websocket command {}".format(str(msg.data)))
         elif msg.type == aiohttp.WSMsgType.ERROR:
-            print('ws connection closed with exception %s' % ws.exception())
+            log.warning('ws connection closed with exception %s' % ws.exception())
+            break
+        elif msg.type == aiohttp.WSMsgType.CLOSED:
+            log.warning('ws connection closed')
+            break
+        else:
+            log.warning('ws unknown command')
+            break
+    await ws.close()
     return ws
 
 

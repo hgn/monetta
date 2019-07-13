@@ -139,6 +139,7 @@ class ResourceHandler(object):
                 ret = self.ws.send_json(data)
                 if ret: await ret
             except:
+                print('x')
                 # probably clossed client connection (not called closed,
                 # just closed window, we need to handle this gracefully
                 # -> kill self.p and so on
@@ -199,7 +200,7 @@ class ResourceHandler(object):
         db_entry['cstime'] = int(procdata[14])
         db_entry['priority'] = int(procdata[15])
         db_entry['nice'] = int(procdata[16])
-        db_entry['num_threads'] = int(procdata[17])
+        db_entry['num-threads'] = int(procdata[17])
         db_entry['rss'] = int(procdata[21]) * page_size
         db_entry['processor'] = int(procdata[36])
         db_entry['policy'] = self.policy_abbrev_full(int(procdata[38]))
@@ -224,7 +225,11 @@ class ResourceHandler(object):
             self.extract_stat_data(db_entry, remain.split(' '))
 
     def extract_sched_data(self, db_entry, data):
-        db_entry['se-sum-exec-runtime'] = str(datetime.timedelta(milliseconds=float(data['se.sum_exec_runtime'])))
+        m = float(data['se.sum_exec_runtime'])
+        db_entry['se-sum-exec-runtime'] = str(datetime.timedelta(milliseconds=m))
+        db_entry['nr-voluntary-switches'] = data['nr_voluntary_switches']
+        db_entry['nr-involuntary-switches'] = data['nr_involuntary_switches']
+        db_entry['nr-migrations'] = data['se.nr_migrations']
 
     def process_sched_data_by_pid(self, pid, db_entry):
         with open(os.path.join('/proc/', str(pid), 'sched'), 'r') as fd:

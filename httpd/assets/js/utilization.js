@@ -412,8 +412,11 @@ function processTableHeader() {
 		'<th>Load [%]</th>' +
 		'<th>Runtime</th>' +
 		'<th>CPU</th>' +
-		'<th># Threads</th>' +
-		'<th>Nice</th>' +
+		'<th>Migrations</th>' +
+		'<th>Threads</th>' +
+		'<th>Voluntary Switches</th>' +
+		'<th>Involuntary Switches</th>' +
+		'<th>Priority</th>' +
 		'<th>Priority</th>' +
 		'<th>Policy</th>' +
 		'<th>RSS</th>' +
@@ -446,7 +449,10 @@ function processTableEntry(entry) {
 		       '<td>' + cpuLoadBar(entry['load']) + '</td>' +
 		       '<td>' + entry['se-sum-exec-runtime'] + '</td>' +
 		       '<td>' + entry['processor'] + '</td>' +
-		       '<td>' + entry['num_threads'] + '</td>' +
+		       '<td>' + entry['nr-migrations'] + '</td>' +
+		       '<td>' + entry['num-threads'] + '</td>' +
+		       '<td>' + entry['nr-voluntary-switches'] + '</td>' +
+		       '<td>' + entry['nr-involuntary-switches'] + '</td>' +
 		       '<td>' + entry['nice'] + '</td>' +
 		       '<td>' + entry['priority'] + '</td>' +
 		       '<td>' + entry['policy'] + '</td>' +
