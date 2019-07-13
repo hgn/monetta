@@ -199,8 +199,13 @@
 				</form>
 
 				<hr />
-				<button type="button" class="btn btn-secondary btn-sm">Download Logs</button>
-				<button type="button" class="btn btn-secondary btn-sm">Download Logs (csv, with meta)</button>
+				<a type="button" class="btn btn-secondary btn-sm" href="download/journal-short" download="journal-syslog.txt">
+          Download Logs (syslog)
+        </a>
+
+        <a type="button" class="btn btn-secondary btn-sm" href="download/journal-json" download="journal.json">
+          Download Logs (json)
+        </a>
 
 				<hr />
 
@@ -212,7 +217,6 @@
 						<input type="radio" autocomplete="off">Sync Off
 					</label>
 				</div>
-
 
 			</div> <!-- col -->
 			<div class="col-10">

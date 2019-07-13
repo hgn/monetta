@@ -74,7 +74,7 @@ class JournalHandler(object):
         return await self.p.wait()
 
     async def sync_history(self):
-        cmd = "journalctl -n 500 -o json"
+        cmd = "journalctl -q -n 500 -o json"
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output, _ = p.communicate()
         p_status = p.wait()
@@ -90,7 +90,7 @@ class JournalHandler(object):
         await self.ws.send_json(data)
 
     async def sync_info(self):
-        cmd = "journalctl -o json"
+        cmd = "journalctl -q -o json"
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output, _ = p.communicate()
         p_status = p.wait()
@@ -104,7 +104,6 @@ class JournalHandler(object):
         data['data-info'] = dict()
         data['data-info']['list-comm'] = list(set_comm)
         await self.ws.send_json(data)
-
 
 async def handle(request):
     peername = request.transport.get_extra_info('peername')

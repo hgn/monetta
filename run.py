@@ -9,6 +9,7 @@ import random
 import argparse
 import asyncio
 import time
+import subprocess
 
 
 from aiohttp import web
@@ -68,11 +69,27 @@ async def handle_process(request):
         content = str.encode(content_file.read())
         return web.Response(body=content, content_type='text/html')
 
+async def handle_download_short(request):
+    cmd = "journalctl -q -o short"
+    print('NOPE')
+    output = subprocess.check_output(cmd, shell=True)
+    return web.Response(body=output, content_type='application/octet-stream')
+
+async def handle_download_json(request):
+    """ content type NOT json, to enforce download """
+    cmd = "journalctl -q -o json"
+    output = subprocess.check_output(cmd, shell=True)
+    return web.Response(body=output, content_type='application/octet-stream')
+
 async def handle_index(request):
     raise web.HTTPFound('journal')
 
 def setup_routes(app, conf):
     app.router.add_route('GET', '/api/v1/ping', api_ping.handle)
+
+    app.router.add_route('GET', '/download/journal-short', handle_download_short)
+    app.router.add_route('GET', '/download/journal-json', handle_download_json)
+
     app.router.add_route('GET', '/ws-journal', ws_journal.handle)
     app.router.add_route('GET', '/ws-utilization', ws_utilization.handle)
     app.router.add_route('GET', '/ws-process', ws_process.handle)
