@@ -19,6 +19,7 @@ from httpd.handler import api_ping
 from httpd.handler import ws_journal
 from httpd.handler import ws_utilization
 from httpd.handler import ws_process
+from httpd.handler import ws_irq
 
 try:
     import pympler.summary
@@ -69,9 +70,15 @@ async def handle_process(request):
         content = str.encode(content_file.read())
         return web.Response(body=content, content_type='text/html')
 
+async def handle_irq(request):
+    root = request.app['path-root']
+    full = os.path.join(root, "httpd/assets/webpage/irq.html")
+    with open(full, 'r') as content_file:
+        content = str.encode(content_file.read())
+        return web.Response(body=content, content_type='text/html')
+
 async def handle_download_short(request):
     cmd = "journalctl -q -o short"
-    print('NOPE')
     output = subprocess.check_output(cmd, shell=True)
     return web.Response(body=output, content_type='application/octet-stream')
 
@@ -93,10 +100,12 @@ def setup_routes(app, conf):
     app.router.add_route('GET', '/ws-journal', ws_journal.handle)
     app.router.add_route('GET', '/ws-utilization', ws_utilization.handle)
     app.router.add_route('GET', '/ws-process', ws_process.handle)
+    app.router.add_route('GET', '/ws-irq', ws_irq.handle)
 
     app.router.add_route('GET', '/journal', handle_journal)
     app.router.add_route('GET', '/utilization', handle_utilization)
     app.router.add_route('GET', '/process', handle_process)
+    app.router.add_route('GET', '/irq', handle_irq)
 
     path_assets = os.path.join(app['path-root'], "httpd/assets")
     app.router.add_static('/assets', path_assets, show_index=False)

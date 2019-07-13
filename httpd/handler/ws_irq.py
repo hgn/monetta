@@ -30,6 +30,16 @@ class JournalHandler(object):
             # just ignore for this pid
             pass
 
+    def get_comm(self, pid, db_entry):
+        db_entry['comm'] = 'unknown'
+        try:
+            with open(os.path.join('/proc/', str(pid), 'comm'), 'r') as pidfile:
+                ret = pidfile.read().strip()
+                db_entry['comm'] = ret
+        except:
+            # just ignore for this pid
+            pass
+
     def get_syscall(self, pid, db_entry):
         db_entry['syscall'] = 'unknown'
         try:
@@ -40,26 +50,15 @@ class JournalHandler(object):
             # just ignore for this pid
             pass
 
-    def proc_status_get(self, pid):
-        data = dict()
-        with open(os.path.join('/proc/', str(pid), 'status'), 'r') as fd:
-            lines = fd.readlines()
-            for line in lines:
-                l = line.strip()
-                key, vals = l.split(':', 1)
-                data[key.strip().lower()] = vals.strip()
-        return data
-
-    def get_proc_stats(self, pid, db_entry):
-        data = self.proc_status_get(pid)
-
-        # prepare data
-        db_entry['comm'] = data['name']
-        db_entry['umask'] = data['umask']
-        db_entry['euid'] = data['uid'].split()[1].strip()
-        db_entry['egid'] = data['gid'].split()[1].strip()
-        db_entry['cpus-allowed-list'] = data['cpus_allowed_list']
-        db_entry['cap-eff'] = data['capeff']
+    def get_cpu_set(self, pid, db_entry):
+        db_entry['cpu-set'] = '-'
+        try:
+            with open(os.path.join('/proc/', str(pid), 'cpuset'), 'r') as pidfile:
+                ret = pidfile.read().strip()
+                db_entry['cpu-set'] = ret
+        except:
+            # just ignore for this pid
+            pass
 
     def processes_update(self, process_db):
         no_processes = 0
@@ -76,7 +75,8 @@ class JournalHandler(object):
             try:
                 self.get_wchan(pid, process_db[pid])
                 self.get_syscall(pid, process_db[pid])
-                self.get_proc_stats(pid, process_db[pid])
+                self.get_comm(pid, process_db[pid])
+                self.get_cpu_set(pid, process_db[pid])
             except FileNotFoundError:
                 # process died just now, update datastructures
                 # re-insert, next loop will remove entry
@@ -98,22 +98,17 @@ class JournalHandler(object):
             self.processes_update(process_db)
             data = self.prepare_data(process_db)
             await self.ws.send_json(data)
-            await asyncio.sleep(1)
+            await asyncio.sleep(5)
 
 
-def log_peer(request):
+async def handle(request):
     peername = request.transport.get_extra_info('peername')
     host = port = "unknown"
     if peername is not None:
         host, port = peername[0:2]
     log.debug("web journal socket request from {}[{}]".format(host, port))
 
-
-async def handle(request):
-    if False:
-        log_peer(request)
-
-    ws = web.WebSocketResponse(heartbeat=5, autoping=True)
+    ws = web.WebSocketResponse()
     await ws.prepare(request)
 
     jh = JournalHandler(ws)
@@ -127,12 +122,7 @@ async def handle(request):
             else:
                 log.debug("unknown websocket command {}".format(str(msg.data)))
         elif msg.type == aiohttp.WSMsgType.ERROR:
-            break
-        elif msg.type == aiohttp.WSMsgType.CLOSED:
-            break
-        else:
-            break
-    await ws.close()
+            print('ws connection closed with exception %s' % ws.exception())
     return ws
 
 

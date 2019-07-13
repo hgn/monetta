@@ -410,6 +410,7 @@ function processTableHeader() {
 		'<th>Name</th>' +
 		'<th>State</th>' +
 		'<th>Load [%]</th>' +
+		'<th>Runtime</th>' +
 		'<th>CPU</th>' +
 		'<th># Threads</th>' +
 		'<th>Nice</th>' +
@@ -422,7 +423,6 @@ function processTableHeader() {
 function cpuLoadBar(percent) {
 	let progessBarWidth = Math.min(percent, 100);
 	let progessBarLevel = 'bg-success'
-	console.log(progessBarWidth)
 	if (progessBarWidth > 10) {
 		progessBarLevel = 'bg-warning'
 	}
@@ -444,6 +444,7 @@ function processTableEntry(entry) {
 		       '<td>' + entry['comm'] + '</td>' +
 		       '<td>' + entry['state'] + '</td>' +
 		       '<td>' + cpuLoadBar(entry['load']) + '</td>' +
+		       '<td>' + entry['se-sum-exec-runtime'] + '</td>' +
 		       '<td>' + entry['processor'] + '</td>' +
 		       '<td>' + entry['num_threads'] + '</td>' +
 		       '<td>' + entry['nice'] + '</td>' +

@@ -16,13 +16,13 @@ $(document).ready(function() {
 
 
 function wsOnOpen(event) {
-    ws_socket.send("start-process-update");
+    //ws_socket.send("start-process-update");
 }
 
 function wsOnMessage(event) {
 			var jdata = JSON.parse(event.data);
 			if ('process-data' in jdata) {
-        console.log('update process data');
+        console.log('update irq data');
 				processProcessData(jdata['process-data']);
 			} else {
 				console.log("data not handled");
@@ -32,11 +32,11 @@ function wsOnMessage(event) {
 function initWebSockets() {
 	try {
 		console.log("use unencryped web socket for data exchange");
-		ws_socket = new WebSocket('ws://' + window.location.host + '/ws-process');
+		ws_socket = new WebSocket('ws://' + window.location.host + '/ws-irq');
 	}
 	catch(err) {
 		try {
-			ws_socket = new WebSocket('wss://' + window.location.host + '/ws-process');
+			ws_socket = new WebSocket('wss://' + window.location.host + '/ws-irq');
 		} catch(exception){
 			console.log('Error' + exception);
 		}
@@ -52,12 +52,9 @@ function processTableHeader() {
 		'<thead><tr>' +
 		'<th>PID</th>' +
 		'<th>Comm</th>' +
-		'<th>EUID</th>' +
-		'<th>EGID</th>' +
 		'<th>Wchan</th>' +
 		'<th>Syscall</th>' +
-		'<th>CPUs Allowed</th>' +
-		'<th>CAP Eff</th>' +
+		'<th>CPU Set</th>' +
 		'</tr> </thead> <tbody> '
 }
 
@@ -66,12 +63,9 @@ function processTableEntry(entry) {
 	return '<tr>' +
 		       '<td>' + entry['pid'] + '</td>' +
 		       '<td>' + entry['comm'] + '</td>' +
-		       '<td>' + entry['euid'] + '</td>' +
-		       '<td>' + entry['egid'] + '</td>' +
 		       '<td>' + entry['wchan'] + '</td>' +
 		       '<td>' + entry['syscall'] + '</td>' +
-		       '<td>' + entry['cpus-allowed-list'] + '</td>' +
-		       '<td>' + entry['cap-eff'] + '</td>' +
+		       '<td>' + entry['cpu-set'] + '</td>' +
 		      '</tr>';
 }
 

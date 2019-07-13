@@ -108,7 +108,7 @@ class ResourceHandler(object):
             try:
                 ret = self.ws.send_json(data)
                 if ret: await ret
-            except RuntimeError:
+            except:
                 # probably clossed client connection (not called closed,
                 # just closed window, we need to handle this gracefully
                 # -> kill self.p and so on
@@ -138,7 +138,7 @@ class ResourceHandler(object):
             try:
                 ret = self.ws.send_json(data)
                 if ret: await ret
-            except RuntimeError:
+            except:
                 # probably clossed client connection (not called closed,
                 # just closed window, we need to handle this gracefully
                 # -> kill self.p and so on
@@ -203,12 +203,7 @@ class ResourceHandler(object):
         db_entry['rss'] = int(procdata[21]) * page_size
         db_entry['processor'] = int(procdata[36])
         db_entry['policy'] = self.policy_abbrev_full(int(procdata[38]))
-        #db_entry['vsize'] = int(procdata[20])
-        #db_entry['rt_priority'] = int(procdata[37])
-        #db_entry['policy'] = int(procdata[38])
-        #db_entry['ppid'] = int(procdata[1])
-        #db_entry['minflt'] = int(procdata[7])
-        #db_entry['majflt'] = int(procdata[9])
+
 
     matcher = re.compile('^(\d+)\W+\((.*)\)\W+(.*)')
 
@@ -218,7 +213,7 @@ class ResourceHandler(object):
         if not r: return False, None, None, None
         return True, r.group(1), r.group(2), r.group(3)
 
-    def process_stat_data_by_pid_ng(self, pid, db_entry):
+    def process_stat_data_by_pid(self, pid, db_entry):
         with open(os.path.join('/proc/', str(pid), 'stat'), 'r') as pidfile:
             proctimes = pidfile.readline()
             ok, pid, name, remain = self.split_and_pid_name_process(proctimes)
@@ -227,6 +222,22 @@ class ResourceHandler(object):
                 return
             db_entry['comm'] = name
             self.extract_stat_data(db_entry, remain.split(' '))
+
+    def extract_sched_data(self, db_entry, data):
+        db_entry['se-sum-exec-runtime'] = str(datetime.timedelta(milliseconds=float(data['se.sum_exec_runtime'])))
+
+    def process_sched_data_by_pid(self, pid, db_entry):
+        with open(os.path.join('/proc/', str(pid), 'sched'), 'r') as fd:
+            data = dict()
+            lines = fd.readlines()
+            for line in lines:
+                l = line.strip()
+                try:
+                    key, values = l.split(':', 1)
+                except:
+                    continue
+                data[key.strip().lower()] = values.strip()
+            self.extract_sched_data(db_entry, data)
 
     def process_load_sum(self, v):
         return v['stime'] + v['utime'] + v['cstime'] + v['cutime']
@@ -270,7 +281,8 @@ class ResourceHandler(object):
                 # candidate
                 old_pids.remove(pid)
             try:
-                self.process_stat_data_by_pid_ng(pid, process_db[pid])
+                self.process_stat_data_by_pid(pid, process_db[pid])
+                self.process_sched_data_by_pid(pid, process_db[pid])
             except FileNotFoundError:
                 # process died just now, update datastructures
                 # re-insert, next loop will remove entry
@@ -316,9 +328,14 @@ class ResourceHandler(object):
                                     update_interval, calc_time)
             try:
                 ret = self.ws.send_json(data)
-                if ret: await ret
-            except RuntimeError:
+                if ret:
+                    await ret
+            except:
                 return
+            #except RuntimeError:
+            #    return
+            #except ConnectionResetError:
+            #    return
             await asyncio.sleep(update_interval)
 
 
@@ -329,7 +346,7 @@ async def handle(request):
         host, port = peername[0:2]
     log.debug("web resource socket request from {}[{}]".format(host, port))
 
-    ws = web.WebSocketResponse()
+    ws = web.WebSocketResponse(heartbeat=5, autoping=True)
     await ws.prepare(request)
 
     jh = ResourceHandler(ws)
@@ -349,6 +366,14 @@ async def handle(request):
                 log.debug("unknown websocket command: {}".format(msg.data))
         elif msg.type == aiohttp.WSMsgType.ERROR:
             print('ws connection closed with exception %s' % ws.exception())
+        elif msg.type == aiohttp.WSMsgType.CLOSED:
+            print('ws closed')
+        else:
+            print('ws: unknown')
+
+    await ws.close()
+    await jh.shutdown()
+
     return ws
 
 
