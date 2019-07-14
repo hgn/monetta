@@ -13,99 +13,92 @@ from aiohttp import web
 
 from httpd.utils import log
 
+IRQ_UPDATE_INTERVAL = 1
 
-class JournalHandler(object):
+class JournalHandler:
 
     def __init__(self, ws):
         self.ws = ws
-        self.queue = asyncio.Queue()
 
-    def get_wchan(self, pid, db_entry):
-        db_entry['wchan'] = 'unknown'
-        try:
-            with open(os.path.join('/proc/', str(pid), 'wchan'), 'r') as pidfile:
-                wchan = pidfile.read().strip()
-                db_entry['wchan'] = wchan
-        except:
-            # just ignore for this pid
-            pass
-
-    def get_comm(self, pid, db_entry):
-        db_entry['comm'] = 'unknown'
-        try:
-            with open(os.path.join('/proc/', str(pid), 'comm'), 'r') as pidfile:
-                ret = pidfile.read().strip()
-                db_entry['comm'] = ret
-        except:
-            # just ignore for this pid
-            pass
-
-    def get_syscall(self, pid, db_entry):
-        db_entry['syscall'] = 'unknown'
-        try:
-            with open(os.path.join('/proc/', str(pid), 'syscall'), 'r') as pidfile:
-                ret = pidfile.read().strip()[0]
-                db_entry['syscall'] = ret
-        except:
-            # just ignore for this pid
-            pass
-
-    def get_cpu_set(self, pid, db_entry):
-        db_entry['cpu-set'] = '-'
-        try:
-            with open(os.path.join('/proc/', str(pid), 'cpuset'), 'r') as pidfile:
-                ret = pidfile.read().strip()
-                db_entry['cpu-set'] = ret
-        except:
-            # just ignore for this pid
-            pass
-
-    def processes_update(self, process_db):
-        no_processes = 0
-        old_pids = set(process_db.keys())
-        for pid in os.listdir('/proc'):
-            if not pid.isdigit(): continue
-            no_processes += 1
-            pid = int(pid)
-            if not pid in process_db:
-                process_db[pid] = dict()
-                process_db[pid]['pid'] = pid
+    def parse_entry(self, fields, line, nr_cpus):
+        data = {}
+        data["cpu"] = []
+        data["cpu"].append(int(fields[0]))
+        nr_fields = len(fields)
+        if nr_fields >= nr_cpus:
+            data["cpu"] += [int(i) for i in fields[1:nr_cpus]]
+            if nr_fields > nr_cpus:
+                data["users"] = " ".join(fields[nr_cpus:])
             else:
-                old_pids.remove(pid)
-            try:
-                self.get_wchan(pid, process_db[pid])
-                self.get_syscall(pid, process_db[pid])
-                self.get_comm(pid, process_db[pid])
-                self.get_cpu_set(pid, process_db[pid])
-            except FileNotFoundError:
-                # process died just now, update datastructures
-                # re-insert, next loop will remove entry
-                old_pids.add(pid)
-        for dead_childs in old_pids:
-            del process_db[dead_childs]
-            #print('dead childs: {}'.format(dead_childs))
-        #system_db['process-no'] = no_processes
+                data["users"] = 'unkown'
+        return data
 
-    def prepare_data(self, process_db):
-        ret = dict()
-        ret['process-data'] = dict()
-        ret['process-data']['data'] = process_db
-        return ret
+    def irq_data_load(self):
+        data = dict()
+        with open("/proc/interrupts") as fd:
+            for line in fd.readlines():
+                line = line.strip()
+                fields = line.split()
+                if fields[0][:3] == "CPU":
+                    nr_cpus = len(fields)
+                    continue
+                irq = fields[0].strip(":")
+                data[irq] = {}
+                data[irq] = self.parse_entry(fields[1:], line, nr_cpus)
+                try:
+                    nirq = int(irq)
+                except:
+                    continue
+                data[irq]["affinity"] = self.parse_affinity(nirq, nr_cpus)
+        return data, nr_cpus
 
-    async def sync_info(self):
-        process_db = dict()
+    def parse_affinity(self, irq, nr_cpus):
+        try:
+            with open("/proc/irq/{}/smp_affinity".format(irq)) as fd:
+                line = fd.readline()
+                return self.bitmasklist(line, nr_cpus)
+        except IOError:
+            return [0, ]
+
+    def bitmasklist(self, line, nr_entries):
+        fields = line.strip().split(",")
+        bitmasklist = []
+        entry = 0
+        for i in range(len(fields) - 1, -1, -1):
+            mask = int(fields[i], 16)
+            while mask != 0:
+                if mask & 1:
+                    bitmasklist.append(entry)
+                mask >>= 1
+                entry += 1
+                if entry == nr_entries:
+                    break
+            if entry == nr_entries:
+                break
+        return bitmasklist
+
+    def irq_prepare_data(self, data, no_cpus):
+        retdata = dict()
+        retdata['data-irq'] = data
+        retdata['no-cpus'] = no_cpus
+        return retdata
+
+    async def start_irq_update(self):
         while True:
-            self.processes_update(process_db)
-            data = self.prepare_data(process_db)
-            await self.ws.send_json(data)
-            await asyncio.sleep(5)
+            start_time = time.time()
+            raw_data, no_cpus = self.irq_data_load()
+            prep_data = self.irq_prepare_data(raw_data, no_cpus)
+            prep_data['processing-time'] = str(int((time.time() - start_time) * 1000)) + 'ms'
+            await self.ws.send_json(prep_data)
+            await asyncio.sleep(IRQ_UPDATE_INTERVAL)
 
 
 def log_peer(request):
     peername = request.transport.get_extra_info('peername')
-    host = port = "unknown"
-    if peername is not None:
+    if peername:
         host, port = peername[0:2]
+    else:
+        host = port = "unknown"
     log.debug("web journal socket request from {}[{}]".format(host, port))
 
 
@@ -113,7 +106,7 @@ async def handle(request):
     if False:
         log_peer(request)
 
-    ws = web.WebSocketResponse(heartbeat=5, autoping=True)
+    ws = web.WebSocketResponse()
     await ws.prepare(request)
 
     jh = JournalHandler(ws)
@@ -122,8 +115,8 @@ async def handle(request):
             if msg.data == 'close':
                 await ws.close()
                 return ws
-            elif msg.data == 'start-process-update':
-                await jh.sync_info()
+            elif msg.data == 'start-irq-update':
+                await jh.start_irq_update()
             else:
                 log.debug("unknown websocket command {}".format(str(msg.data)))
         elif msg.type == aiohttp.WSMsgType.ERROR:

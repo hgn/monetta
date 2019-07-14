@@ -6,9 +6,9 @@
 
 			<link rel="stylesheet" href="assets/css/bootstrap.min.css">
 			<link rel="stylesheet" href="assets/css/bootstrap-grid.min.css">
-			<link rel="stylesheet" href="assets/css/style-gen.css">
 			<link rel="stylesheet" href="assets/css/style-utilization.css">
 			<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+			<link rel="stylesheet" href="assets/css/style-gen.css">
 		<title>Monetta</title>
 	</head>
 	<body>
@@ -41,8 +41,10 @@
 					<a class="nav-link" href="#">IRQ</a>
 				</li>
 			</ul>
-			<span class="navbar-text">
-				@server-stats: x239923
+			<span class="navback navbar-text">
+				@server:
+				processing-time:<span id="info-processing-time">∅</span>
+				update:<span id="info-updates">∅</span>
 			</span>
 		</div>
 	</nav>
@@ -66,11 +68,11 @@
 
 				<div class="card border-light">
 					<h5 class="card-header">
-						Process Table
+						IRQ Table
 					</h5>
 					<div class="card-body">
 
-						<div id="process-table"></div>
+						<div id="irq-table"></div>
 
 					</div>
 				</div>

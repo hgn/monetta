@@ -91,3 +91,13 @@ body {
 .alignright {
 	float: right;
 }
+
+/* for @server info */
+span.navback.navbar-text {
+	color: #b3b3b380;
+}
+
+.update-cell {
+  background-color: #2196F3;
+  color: white;
+}

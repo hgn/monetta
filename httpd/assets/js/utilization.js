@@ -416,9 +416,6 @@ function processTableHeader() {
 		'<th>Threads</th>' +
 		'<th>Voluntary Switches</th>' +
 		'<th>Involuntary Switches</th>' +
-		'<th>Priority</th>' +
-		'<th>Priority</th>' +
-		'<th>Policy</th>' +
 		'<th>RSS</th>' +
 		'</tr> </thead> <tbody> '
 }
@@ -453,9 +450,6 @@ function processTableEntry(entry) {
 		       '<td>' + entry['num-threads'] + '</td>' +
 		       '<td>' + entry['nr-voluntary-switches'] + '</td>' +
 		       '<td>' + entry['nr-involuntary-switches'] + '</td>' +
-		       '<td>' + entry['nice'] + '</td>' +
-		       '<td>' + entry['priority'] + '</td>' +
-		       '<td>' + entry['policy'] + '</td>' +
 		       '<td>' + prettyNumber(entry['rss']) + '</td>' +
 		      '</tr>';
 }

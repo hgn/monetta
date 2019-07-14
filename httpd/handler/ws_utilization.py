@@ -351,7 +351,7 @@ async def handle(request):
         host, port = peername[0:2]
     log.debug("web resource socket request from {}[{}]".format(host, port))
 
-    ws = web.WebSocketResponse(heartbeat=5, autoping=True)
+    ws = web.WebSocketResponse()
     await ws.prepare(request)
 
     jh = ResourceHandler(ws)

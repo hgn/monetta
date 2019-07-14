@@ -50,9 +50,25 @@ class JournalHandler(object):
                 data[key.strip().lower()] = vals.strip()
         return data
 
-    def get_proc_stats(self, pid, db_entry):
-        data = self.proc_status_get(pid)
+    def policy_abbrev_full(self, number):
+        # define SCHED_NORMAL		0
+        # define SCHED_FIFO		1
+        # define SCHED_RR		2
+        # define SCHED_BATCH		3
+        # /* SCHED_ISO: reserved but not implemented yet */
+        # define SCHED_IDLE		5
+        # define SCHED_DEADLINE		6
+        return {
+                0: 'OTHER',
+                1: 'FIFO',
+                2: 'RR',
+                3: 'BATCH',
+                5: 'IDLE',
+                6: 'DEADLINE'
+        }.get(number, 'unknown ({})'.format(number))
 
+    def get_proc_status(self, pid, db_entry):
+        data = self.proc_status_get(pid)
         # prepare data
         db_entry['comm'] = data['name']
         db_entry['umask'] = data['umask']
@@ -60,6 +76,21 @@ class JournalHandler(object):
         db_entry['egid'] = data['gid'].split()[1].strip()
         db_entry['cpus-allowed-list'] = data['cpus_allowed_list']
         db_entry['cap-eff'] = data['capeff']
+
+    def proc_stat_read(self, pid):
+        data = dict()
+        with open(os.path.join('/proc/', str(pid), 'stat'), 'r') as fd:
+            line = fd.read()
+            return line.strip().split()
+
+    def get_proc_stat(self, pid, db_entry):
+        data = self.proc_stat_read(pid)
+        # prepare data
+        # man page numbers minus one
+        db_entry['policy'] = self.policy_abbrev_full(int(data[40]))
+        db_entry['rt-priority'] = int(data[39])
+        db_entry['priority'] = int(data[17])
+        db_entry['nice'] = int(data[18])
 
     def processes_update(self, process_db):
         no_processes = 0
@@ -76,7 +107,8 @@ class JournalHandler(object):
             try:
                 self.get_wchan(pid, process_db[pid])
                 self.get_syscall(pid, process_db[pid])
-                self.get_proc_stats(pid, process_db[pid])
+                self.get_proc_status(pid, process_db[pid])
+                self.get_proc_stat(pid, process_db[pid])
             except FileNotFoundError:
                 # process died just now, update datastructures
                 # re-insert, next loop will remove entry
@@ -97,6 +129,7 @@ class JournalHandler(object):
         while True:
             self.processes_update(process_db)
             data = self.prepare_data(process_db)
+            print('update')
             await self.ws.send_json(data)
             await asyncio.sleep(1)
 
@@ -113,7 +146,7 @@ async def handle(request):
     if False:
         log_peer(request)
 
-    ws = web.WebSocketResponse(heartbeat=5, autoping=True)
+    ws = web.WebSocketResponse()
     await ws.prepare(request)
 
     jh = JournalHandler(ws)

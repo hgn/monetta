@@ -54,6 +54,10 @@ function processTableHeader() {
 		'<th>Comm</th>' +
 		'<th>EUID</th>' +
 		'<th>EGID</th>' +
+		'<th>Policy</th>' +
+		'<th>Nice</th>' +
+		'<th>Priority</th>' +
+		'<th>RT Priority</th>' +
 		'<th>Wchan</th>' +
 		'<th>Syscall</th>' +
 		'<th>CPUs Allowed</th>' +
@@ -68,6 +72,10 @@ function processTableEntry(entry) {
 		       '<td>' + entry['comm'] + '</td>' +
 		       '<td>' + entry['euid'] + '</td>' +
 		       '<td>' + entry['egid'] + '</td>' +
+		       '<td>' + entry['policy'] + '</td>' +
+		       '<td>' + entry['nice'] + '</td>' +
+		       '<td>' + entry['priority'] + '</td>' +
+		       '<td>' + entry['rt-priority'] + '</td>' +
 		       '<td>' + entry['wchan'] + '</td>' +
 		       '<td>' + entry['syscall'] + '</td>' +
 		       '<td>' + entry['cpus-allowed-list'] + '</td>' +
