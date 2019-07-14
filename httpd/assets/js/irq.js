@@ -69,6 +69,7 @@ function processTableHeader(noCPUs) {
 		str += '<th> CPU ' + i + '</th>';
 	}
 	str += '<th>INFO</th>'
+	str += '<th>CPU Affinity</th>'
 	str += '</tr> </thead> <tbody> ';
 	return str
 }
@@ -87,7 +88,6 @@ function processIRQEntry(irq, data, noCPUs) {
 		if (irqDatPrev) {
 			var prev_interrupts = irqDatPrev[irq].cpu[i];
 			if (typeof prev_interrupts !== 'undefined' && prev_interrupts != interrupts) {
-				console.log(prev_interrupts);
 				str += '<td class="update-cell">' + interrupts + '</td>';
 			} else {
 				str += '<td>' + interrupts + '</td>';
@@ -97,6 +97,7 @@ function processIRQEntry(irq, data, noCPUs) {
 		}
 	}
 	str += '<td>' + data.users + '</td>';
+	str += '<td>' + data.affinity + '</td>';
 	str += '</tr>';
 	return str;
 }
