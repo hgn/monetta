@@ -2,11 +2,11 @@
 
 A Lightweight<sup>1</sup> Logging and System Monitoring Web Server
 
-> <sup>1</sup>lightweight in the sense that possible processing operations are shifted to
-> browser side. E.g. for journal data it taillogs the data directly fom
-> `journal -f json` and pipes them via a websocket to the client. Open files
-> within `/proc` cannot be optimized out (though, if tab is not active, no
-> data is gathered)
+> <sup>1</sup>lightweight in the sense that required processing operations are
+> shifted to browser side. E.g. journal data is directly tailloged from
+> `journal -f json` and piped into a websocket to the client - no intermediate
+> processing. Open files within `/proc` cannot be optimized out (though, if tab
+> is not active, no data is gathered)
 
 
 ## Journal Tab
