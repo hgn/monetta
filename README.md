@@ -8,6 +8,26 @@ A Lightweight<sup>1</sup> Logging and System Monitoring Web Server
 > processing. Open files within `/proc` cannot be optimized out (though, if tab
 > is not active, no data is gathered)
 
+## Installation
+
+```shell
+# download this package
+git clone https://github.com/hgn/monetta.git
+cd monetta
+
+# aiohttp package is required (python webserver)
+pip install -f requirements.txt
+
+# monetta is using python binding to log
+# into journal
+aptitude install python3-systemd
+
+# start the server
+./run.py -f assets/monetta.conf
+
+# open your browser -> http://localhost:8080/
+```
+
 
 ## Journal Tab
 
