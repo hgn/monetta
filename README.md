@@ -1,8 +1,23 @@
 # Monetta - Linux Monitoring Daemon
 
-A Logging and System Monitoring Web Server
+A Lightweight Logging and System Monitoring Web Server (*lightweight in the
+sense that major processing operations are shifted to client (browser side*)
 
-![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screen-utilization.png)
+## Journal Tab
+
+![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screenshot-journal.png)
+
+## Utilization Tab
+
+![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screenshot-utilization.png)
+
+## Process Tab
+
+![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screenshot-process.png)
+
+## IRQ Tab
+
+![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screenshot-irq.png)
 
 ## Problem Statement
 
