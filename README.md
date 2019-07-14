@@ -1,21 +1,37 @@
 # Monetta - Linux Monitoring Daemon
 
-A Lightweight Logging and System Monitoring Web Server (*lightweight in the
-sense that major processing operations are shifted to client (browser side*)
+A Lightweight1 Logging and System Monitoring Web Server
+
+> 1lightweight in the sense that possible processing operations are shifted to
+> browser side. E.g. for journal data it taillogs the data directly fom
+> `journal -f json` and pipes them via a websocket to the client. Open files
+> within `/proc` cannot be optimized out (though, if tab is not active, no
+> data is gathered)
+
 
 ## Journal Tab
+
+Displays Systemd journal information. Some filters are available. Journal can
+also be downloaded as JSON or Syslog format (you can even wget the both formats
+if you want).
 
 ![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screenshot-journal.png)
 
 ## Utilization Tab
 
+Focus on life data of the system. Update interval is one second.
+
 ![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screenshot-utilization.png)
 
 ## Process Tab
 
+Provides static data of an process. The page is updated rarely (every 10 seconds).
+
 ![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screenshot-process.png)
 
 ## IRQ Tab
+
+Updated every second and display all interrupt related data, including affinity mask.
 
 ![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screenshot-irq.png)
 
