@@ -62,7 +62,7 @@ function initWebSockets() {
 
 function processTableHeader(noCPUs) {
 	var str;
-	str  = '<table class="table table-borderless table-sm table-hover table-striped">  <thead class="thead-dark"><tr>';
+	str  = '<table class="table table-borderless table-sm table-hover table-striped">  <thead><tr>';
 	str += '<th>IRQ</th>'
 	var i;
 	for (i = 0; i < noCPUs; i++) {

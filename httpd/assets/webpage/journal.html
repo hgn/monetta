@@ -14,9 +14,11 @@
 			<meta name="theme-color" content="#ffffff">
 
 			<meta name="viewport" content="width=device-width, initial-scale=2, shrink-to-fit=no">
+
 			<link rel="stylesheet" href="assets/css/bootstrap.min.css">
 			<link rel="stylesheet" href="assets/css/bootstrap-grid.min.css">
 			<link rel="stylesheet" href="assets/css/style-gen.css">
+			<link rel="stylesheet" href="assets/css/font-awesome.min.css">
 		<title>Monetta</title>
 	</head>
 	<body>
@@ -49,7 +51,7 @@
 
 
 
-	<nav class="navbar navbar-toggleable-sm navbar-light fixed-top" style="background-color: #f9f9f9;">
+	<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top" style="background-color: #f9f9f9;">
 		<button class="navbar-toggler navbar-toggler-right" type="button"
 																											data-toggle="collapse" data-target="#navbarsExampleDefault"
 																									aria-controls="navbarsExampleDefault" aria-expanded="false"
@@ -102,8 +104,8 @@
 							<div class="card-block">
 
 								<div class="btn-group" role="group" aria-label="basic example">
-									<button type="button" class="btn btn-secondary btn-sm">deselect all</button>
-									<button type="button" class="btn btn-secondary btn-sm">select all</button>
+									<button type="button" class="btn btn-secondary btn-light btn-sm">deselect all</button>
+									<button type="button" class="btn btn-secondary btn-light btn-sm">select all</button>
 								</div><hr />
 
 
@@ -204,24 +206,27 @@
 				</form>
 
 				<hr />
-				<a type="button" class="btn btn-secondary btn-sm" href="download/journal-short" download="journal-syslog.txt">
+				<a type="button" class="btn btn-secondary btn-light btn-sm" href="download/journal-short" download="journal-syslog.txt">
           Download Logs (syslog)
         </a>
 
-        <a type="button" class="btn btn-secondary btn-sm" href="download/journal-json" download="journal.json">
+        <a type="button" class="btn btn-secondary btn-light btn-sm" href="download/journal-json" download="journal.json">
           Download Logs (json)
         </a>
 
 				<hr />
 
-				<div id="sync-toggle" class="btn-group-sm" data-toggle="buttons">
-					<label id="on" class="btn btn-secondary active">
-						<input type="radio" autocomplete="off" checked>Sync On
+				<div class="btn-group btn-group-toggle" data-toggle="buttons">
+					<label class="btn btn-secondary active btn-sm btn-light">
+						<input type="radio" name="options" id="option1"
+						autocomplete="off" checked> Sync On
 					</label>
-					<label id="off" class="btn btn-secondary">
-						<input type="radio" autocomplete="off">Sync Off
+					<label class="btn btn-secondary btn-sm btn-light">
+						<input type="radio" name="options" id="option2"
+						autocomplete="off"> Sync Off
 					</label>
 				</div>
+
 
 			</div> <!-- col -->
 			<div class="col-10">
