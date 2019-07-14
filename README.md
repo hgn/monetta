@@ -1,8 +1,8 @@
 # Monetta - Linux Monitoring Daemon
 
-A Lightweight1 Logging and System Monitoring Web Server
+A Lightweight<sup>1</sup> Logging and System Monitoring Web Server
 
-> 1lightweight in the sense that possible processing operations are shifted to
+> <sup>1</sup>lightweight in the sense that possible processing operations are shifted to
 > browser side. E.g. for journal data it taillogs the data directly fom
 > `journal -f json` and pipes them via a websocket to the client. Open files
 > within `/proc` cannot be optimized out (though, if tab is not active, no
