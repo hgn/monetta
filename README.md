@@ -41,6 +41,14 @@ if you want).
 
 Focus on life data of the system. Update interval is one second.
 
+- **Avg Run [µs]** average time spent on the CPU until scheduled out
+- **Avg Wait [µs]** average time spent waiting on a runqueue until scheduled in
+- **Scheduled [/s]** How often this process is switched into. See function
+  [prepare_task_switch()](https://elixir.bootlin.com/linux/v5.2/source/kernel/sched/core.c#L2597).
+  Which will call `sched_info_switch()`. The number of context switches it divided by interval to
+  get them per second. Or other: number of timeslices run on this cpu per seconds.
+
+
 ![Monetta Screenshot - Utilization](https://github.com/hgn/monetta/raw/master/doc/screenshots/screenshot-utilization.png)
 
 ## Process Tab

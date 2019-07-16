@@ -58,7 +58,7 @@ class ResourceHandler(object):
             6irq: servicing interrupts
             7softirq: servicing softirqs
 
-        #the formulas from htop 
+        #the formulas from htop
              user    nice   system  idle      iowait irq   softirq  steal  guest  guest_nice
         cpu  74608   2520   24433   1117073   6176   4054  0        0      0      0
 
@@ -244,6 +244,19 @@ class ResourceHandler(object):
                 data[key.strip().lower()] = values.strip()
             self.extract_sched_data(db_entry, data)
 
+    def extract_schedstat_data(self, db_entry, data):
+        ticks = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
+        db_entry['run-ticks'] = int(data[0])
+        db_entry['wait-ticks'] = int(data[1])
+        db_entry['nrun'] = int(data[2])
+
+    def process_schedstat_data_by_pid(self, pid, db_entry):
+        with open(os.path.join('/proc/', str(pid), 'schedstat'), 'r') as fd:
+            data = dict()
+            line = fd.read()
+            data = line.split()
+            self.extract_schedstat_data(db_entry, data)
+
     def process_load_sum(self, v):
         return v['stime'] + v['utime'] + v['cstime'] + v['cutime']
 
@@ -288,6 +301,7 @@ class ResourceHandler(object):
             try:
                 self.process_stat_data_by_pid(pid, process_db[pid])
                 self.process_sched_data_by_pid(pid, process_db[pid])
+                self.process_schedstat_data_by_pid(pid, process_db[pid])
             except FileNotFoundError:
                 # process died just now, update datastructures
                 # re-insert, next loop will remove entry

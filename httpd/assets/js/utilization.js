@@ -411,6 +411,9 @@ function processTableHeader() {
 		'<th>State</th>' +
 		'<th>Load [%]</th>' +
 		'<th>Runtime</th>' +
+		'<th>Avg Run [µs]</th>' +
+		'<th>Avg Wait [µs]</th>' +
+		'<th>Scheduled [/s]</th>' +
 		'<th>CPU</th>' +
 		'<th>Migrations</th>' +
 		'<th>Threads</th>' +
@@ -438,13 +441,46 @@ function cpuLoadBar(percent) {
 	return str
 }
 
-function processTableEntry(entry) {
+var prevNrun = {};
+var prevRunTicks = {};
+var prevWaitTicks = {};
+
+function processTableEntry(entry, updateInterval) {
+
+  let avgrun = -1;
+  let avgwait = -1;
+  let nruns = 0;
+
+  if (entry['pid'] in prevNrun && (entry['run-ticks'] > 0)) {
+    nruns = entry['nrun'] - prevNrun[entry['pid']];
+    if (nruns == 0) {
+      nruns = 1;
+    }
+    avgrun = ((entry['run-ticks'] - prevRunTicks[entry['pid']]) / nruns) / 1000 ;
+    avgwait = ((entry['wait-ticks'] - prevWaitTicks[entry['pid']]) / nruns) / 1000;
+    avgrun = avgrun.toFixed(1)
+    avgwait = avgwait.toFixed(1)
+    nruns = (nruns / updateInterval).toFixed(0)
+  } else {
+    avgwait = '∅';
+    avgrun = '∅';
+    nruns = '∅';
+  }
+
+  prevNrun[entry['pid']] = entry['nrun'];
+  prevRunTicks[entry['pid']] = entry['run-ticks'];
+  prevWaitTicks[entry['pid']] = entry['wait-ticks'];
+
+
 	return '<tr>' +
 		       '<td>' + entry['pid'] + '</td>' +
 		       '<td>' + entry['comm'] + '</td>' +
 		       '<td>' + entry['state'] + '</td>' +
 		       '<td>' + cpuLoadBar(entry['load']) + '</td>' +
 		       '<td>' + entry['se-sum-exec-runtime'] + '</td>' +
+		       '<td>' + avgrun + '</td>' +
+		       '<td>' + avgwait + '</td>' +
+		       '<td>' + nruns + '</td>' +
 		       '<td>' + entry['processor'] + '</td>' +
 		       '<td>' + entry['nr-migrations'] + '</td>' +
 		       '<td>' + entry['num-threads'] + '</td>' +
@@ -463,8 +499,9 @@ function processProcessData(rawData) {
 	let output = document.getElementById("process-table");
 
 	let str = processTableHeader();
+  let updateInterval = rawData['update-interval']
 	for (let entry of rawData['process-list']) {
-		str += processTableEntry(entry);
+		str += processTableEntry(entry, updateInterval);
 	}
 	str += processTableFooter();
 	output.innerHTML = str;
