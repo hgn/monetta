@@ -12,7 +12,22 @@ $(document).ready(function() {
 	} else {
 		initWebSockets();
 	}
+
+	initButtonGroup();
 });
+
+var irqMode = 'abs';
+
+function initButtonGroup() {
+	console.log('register');
+	$('#toggle-rel').on('change', function () {
+		irqMode = 'rel';
+	});
+
+	$('#toggle-abs').on('change', function () {
+		irqMode = 'abs';
+	});
+}
 
 
 function wsOnOpen(event) {
@@ -74,6 +89,40 @@ function processTableHeader(noCPUs) {
 	return str
 }
 
+function processIRQEntryAbs(irq, data, noCPUs, interrupts, i)
+{
+	var str = "";
+
+	if (irqDatPrev) {
+		var prev_interrupts = irqDatPrev[irq].cpu[i];
+		if (typeof prev_interrupts !== 'undefined' && prev_interrupts != interrupts) {
+			str += '<td class="update-cell">' + interrupts + '</td>';
+		} else {
+			str += '<td>' + interrupts + '</td>';
+		}
+	} else {
+		str += '<td>' + interrupts + '</td>';
+	}
+	return str;
+}
+
+function processIRQEntryRel(irq, data, noCPUs, interrupts, i)
+{
+	var str = "";
+
+	if (irqDatPrev) {
+		var prev_interrupts = irqDatPrev[irq].cpu[i];
+		if (typeof prev_interrupts !== 'undefined' && prev_interrupts != interrupts) {
+			str += '<td class="update-cell">' + (interrupts - prev_interrupts) + '</td>';
+		} else {
+			str += '<td>' + '0' + '</td>';
+		}
+	} else {
+		str += '<td>' + '0' + '</td>';
+	}
+	return str;
+}
+
 
 function processIRQEntry(irq, data, noCPUs) {
 	var str;
@@ -85,15 +134,10 @@ function processIRQEntry(irq, data, noCPUs) {
 		if (i in data.cpu) {
 			interrupts = data.cpu[i];
 		}
-		if (irqDatPrev) {
-			var prev_interrupts = irqDatPrev[irq].cpu[i];
-			if (typeof prev_interrupts !== 'undefined' && prev_interrupts != interrupts) {
-				str += '<td class="update-cell">' + interrupts + '</td>';
-			} else {
-				str += '<td>' + interrupts + '</td>';
-			}
+		if (irqMode == 'abs') {
+		 str += processIRQEntryAbs(irq, data, noCPUs, interrupts, i);
 		} else {
-			str += '<td>' + interrupts + '</td>';
+		 str += processIRQEntryRel(irq, data, noCPUs, interrupts, i);
 		}
 	}
 	str += '<td>' + data.users + '</td>';
