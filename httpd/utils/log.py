@@ -2,9 +2,9 @@
 # coding: utf-8
 
 import sys
-import traceback
+#import traceback
 #import systemd.journal
-from systemd.journal import send
+#from systemd.journal import send
 
 
 # default is debug
@@ -15,65 +15,38 @@ def _query_stack_data():
 
 
 def emerg(msg):
-    # always on
-    file_, line_, func_ = _query_stack_data()
-    send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=0)
     sys.stderr.write(msg + '\n')
 
 
 def alert(msg):
-    if _ACTIVATED_LOG_LEVEL < 1:
-        return
-    file_, line_, func_ = _query_stack_data()
-    send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=1)
     sys.stderr.write(msg + '\n')
 
 
 def crit(msg):
-    if _ACTIVATED_LOG_LEVEL < 2:
-        return
-    file_, line_, func_ = _query_stack_data()
-    send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=2)
     sys.stderr.write(msg)
 
 
 def err(msg):
-    if _ACTIVATED_LOG_LEVEL < 3:
-        return
-    file_, line_, func_ = _query_stack_data()
-    send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=3)
     sys.stderr.write(msg + '\n')
 
 
 def warning(msg):
-    if _ACTIVATED_LOG_LEVEL < 4:
-        return
-    file_, line_, func_ = _query_stack_data()
-    send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=4)
     sys.stderr.write(msg + '\n')
 
 
 def notice(msg):
-    if _ACTIVATED_LOG_LEVEL < 5:
-        return
-    file_, line_, func_ = _query_stack_data()
-    send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=5)
     sys.stderr.write(msg + '\n')
 
 
 def info(msg):
-    if _ACTIVATED_LOG_LEVEL < 6:
-        return
-    file_, line_, func_ = _query_stack_data()
-    send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=6)
     sys.stderr.write(msg + '\n')
 
 
 def debug(msg):
-    if _ACTIVATED_LOG_LEVEL < 7:
-        return
-    file_, line_, func_ = _query_stack_data()
-    send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=7)
+    #if _ACTIVATED_LOG_LEVEL < 7:
+    #    return
+    #file_, line_, func_ = _query_stack_data()
+    #send(msg, CODE_FILE=file_, CODE_LINE=line_, CODE_FUNC=func_, PRIORITY=7)
     sys.stderr.write(msg + '\n')
 
 

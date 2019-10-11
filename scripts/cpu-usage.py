@@ -5,15 +5,11 @@ import os
 import sys
 import time
 import multiprocessing
-import resource
 import re
 
 active_cpus = multiprocessing.cpu_count()
-page_size = resource.getpagesize()
 
 print("no active CPUs: {}".format(active_cpus))
-print("page size: {}".format(page_size))
-
 
 def system_load_all():
     with open('/proc/stat', 'r') as procfile:
@@ -46,7 +42,7 @@ def extract_stat_data(db_entry, procdata):
     db_entry['priority'] = int(procdata[15])
     db_entry['nice'] = int(procdata[16])
     db_entry['num_threads'] = int(procdata[17])
-    db_entry['rss'] = int(procdata[21]) * page_size
+    db_entry['rss'] = int(procdata[21]) * 4096
     db_entry['processor'] = int(procdata[36])
     #db_entry['vsize'] = int(procdata[20])
     #db_entry['rt_priority'] = int(procdata[37])

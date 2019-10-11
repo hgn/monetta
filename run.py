@@ -173,7 +173,7 @@ def main(conf):
     setup_db(app)
     setup_routes(app, conf)
     register_timeout_handler(app)
-    web.run_app(app, host="localhost", port=8080)
+    web.run_app(app, host=app["CONF"]['host'], port=app["CONF"]['port'])
 
 def parse_args():
     parser = argparse.ArgumentParser()
