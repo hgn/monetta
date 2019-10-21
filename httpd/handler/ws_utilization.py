@@ -9,7 +9,6 @@ import json
 import time
 import datetime
 import multiprocessing
-import resource
 import re
 import os
 
@@ -18,7 +17,6 @@ from aiohttp import web
 from httpd.utils import log
 
 active_cpus = multiprocessing.cpu_count()
-page_size = resource.getpagesize()
 
 MEMINFO_WHITELIST = ("MemTotal", "MemFree", "MemAvailable")
 
@@ -201,7 +199,7 @@ class ResourceHandler(object):
         db_entry['priority'] = int(procdata[15])
         db_entry['nice'] = int(procdata[16])
         db_entry['num-threads'] = int(procdata[17])
-        db_entry['rss'] = int(procdata[21]) * page_size
+        db_entry['rss'] = int(4096)
         db_entry['processor'] = int(procdata[36])
         db_entry['policy'] = self.policy_abbrev_full(int(procdata[38]))
 
