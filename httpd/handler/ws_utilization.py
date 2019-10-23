@@ -231,15 +231,25 @@ class ResourceHandler(object):
             db_entry['comm'] = name
             self.extract_stat_data(db_entry, remain.split(' '))
 
-    def extract_sched_data(self, db_entry, data):
+    def sched_data_extract(self, db_entry, data):
         m = float(data['se.sum_exec_runtime'])
         db_entry['se-sum-exec-runtime'] = str(datetime.timedelta(milliseconds=m))
         db_entry['nr-voluntary-switches'] = data['nr_voluntary_switches']
         db_entry['nr-involuntary-switches'] = data['nr_involuntary_switches']
         db_entry['nr-migrations'] = data['se.nr_migrations']
 
+    def sched_data_nullify(self, db_entry):
+        db_entry['se-sum-exec-runtime'] = 'unavailable'
+        db_entry['nr-voluntary-switches'] = 'unavailable'
+        db_entry['nr-involuntary-switches'] = 'unavailable'
+        db_entry['nr-migrations'] = 'unavailable'
+
     def process_sched_data_by_pid(self, pid, db_entry):
-        with open(os.path.join('/proc/', str(pid), 'sched'), 'r') as fd:
+        sched_path = os.path.join('/proc/', str(pid), 'sched')
+        if not os.path.exists(sched_path):
+            self.sched_data_nullify(db_entry)
+            return
+        with open(sched_path, 'r') as fd:
             data = dict()
             lines = fd.readlines()
             for line in lines:
@@ -249,7 +259,7 @@ class ResourceHandler(object):
                 except:
                     continue
                 data[key.strip().lower()] = values.strip()
-            self.extract_sched_data(db_entry, data)
+            self.sched_data_extract(db_entry, data)
 
     def extract_schedstat_data(self, db_entry, data):
         ticks = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
