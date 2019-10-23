@@ -37,6 +37,16 @@ EXIT_OK      = 0
 EXIT_FAILURE = 1
 
 
+def pre_check(conf):
+    if "pre_check" in dir(ws_utilization):
+        ws_utilization.pre_check()
+    if "pre_check" in dir(ws_journal):
+        ws_journal.pre_check()
+    if "pre_check" in dir(ws_process):
+        ws_process.pre_check()
+    if "pre_check" in dir(ws_irq):
+        ws_irq.pre_check()
+
 
 def set_config_defaults(app):
     # CAN be overwritten by config, will
@@ -173,6 +183,7 @@ def main(conf):
     setup_db(app)
     setup_routes(app, conf)
     register_timeout_handler(app)
+    pre_check(conf)
     web.run_app(app, host=app["CONF"]['host'], port=app["CONF"]['port'])
 
 def parse_args():

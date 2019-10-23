@@ -20,6 +20,15 @@ active_cpus = multiprocessing.cpu_count()
 
 MEMINFO_WHITELIST = ("MemTotal", "MemFree", "MemAvailable")
 
+def pre_check():
+    if not os.path.exists('/proc/self/stat'):
+        print('WARNING: no /proc/.../stat support available')
+    if not os.path.exists('/proc/meminfo'):
+        print('WARNING: no /proc/meminfo support available')
+    if not os.path.exists('/proc/self/sched'):
+        print('WARNING: no /proc/.../sched support available')
+
+
 
 class ResourceHandler(object):
 
