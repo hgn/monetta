@@ -208,7 +208,7 @@ class ResourceHandler(object):
         db_entry['priority'] = int(procdata[15])
         db_entry['nice'] = int(procdata[16])
         db_entry['num-threads'] = int(procdata[17])
-        db_entry['rss'] = int(4096)
+        db_entry['rss'] = int(procdata[21]) * 4096
         db_entry['processor'] = int(procdata[36])
         db_entry['policy'] = self.policy_abbrev_full(int(procdata[38]))
 
