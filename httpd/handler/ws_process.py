@@ -13,6 +13,9 @@ from aiohttp import web
 
 from httpd.utils import log
 
+def pre_check():
+    if not os.path.exists('/proc/self/wchan'):
+        print('WARNING: no /proc/.../wchan support available')
 
 class JournalHandler(object):
 

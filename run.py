@@ -19,6 +19,7 @@ from httpd.handler import api_ping
 from httpd.handler import ws_journal
 from httpd.handler import ws_utilization
 from httpd.handler import ws_process
+from httpd.handler import ws_memory
 from httpd.handler import ws_irq
 
 try:
@@ -44,6 +45,8 @@ def pre_check(conf):
         ws_journal.pre_check()
     if "pre_check" in dir(ws_process):
         ws_process.pre_check()
+    if "pre_check" in dir(ws_memory):
+        ws_memory.pre_check()
     if "pre_check" in dir(ws_irq):
         ws_irq.pre_check()
 
@@ -80,6 +83,13 @@ async def handle_process(request):
         content = str.encode(content_file.read())
         return web.Response(body=content, content_type='text/html')
 
+async def handle_memory(request):
+    root = request.app['path-root']
+    full = os.path.join(root, "httpd/assets/webpage/memory.html")
+    with open(full, 'r') as content_file:
+        content = str.encode(content_file.read())
+        return web.Response(body=content, content_type='text/html')
+
 async def handle_irq(request):
     root = request.app['path-root']
     full = os.path.join(root, "httpd/assets/webpage/irq.html")
@@ -110,11 +120,13 @@ def setup_routes(app, conf):
     app.router.add_route('GET', '/ws-journal', ws_journal.handle)
     app.router.add_route('GET', '/ws-utilization', ws_utilization.handle)
     app.router.add_route('GET', '/ws-process', ws_process.handle)
+    app.router.add_route('GET', '/ws-memory', ws_memory.handle)
     app.router.add_route('GET', '/ws-irq', ws_irq.handle)
 
     app.router.add_route('GET', '/journal', handle_journal)
     app.router.add_route('GET', '/utilization', handle_utilization)
     app.router.add_route('GET', '/process', handle_process)
+    app.router.add_route('GET', '/memory', handle_memory)
     app.router.add_route('GET', '/irq', handle_irq)
 
     path_assets = os.path.join(app['path-root'], "httpd/assets")

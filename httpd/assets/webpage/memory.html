@@ -16,9 +16,9 @@
 
 			<link rel="stylesheet" href="assets/css/bootstrap.min.css">
 			<link rel="stylesheet" href="assets/css/bootstrap-grid.min.css">
-			<link rel="stylesheet" href="assets/css/style-gen.css">
 			<link rel="stylesheet" href="assets/css/style-utilization.css">
 			<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+			<link rel="stylesheet" href="assets/css/style-gen.css">
 		<title>Monetta</title>
 	</head>
 	<body>
@@ -44,18 +44,20 @@
 				<li class="nav-item">
 					<a class="nav-link" href="utilization">Utilization</a>
 				</li>
-				<li class="nav-item active">
-					<a class="nav-link" href="#">Scheduling</a>
-				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="memory">Memory</a>
+					<a class="nav-link" href="process">Scheduling</a>
+				</li>
+				<li class="nav-item active">
+					<a class="nav-link" href="#">Memory</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="irq">Interrupts</a>
 				</li>
 			</ul>
-			<span class="navbar-text">
-				@server-stats: x239923
+			<span class="navback navbar-text">
+				@server:
+				processing-time:<span id="info-processing-time">∅</span>
+				update:<span id="info-updates">∅</span>
 			</span>
 		</div>
 	</nav>
@@ -63,6 +65,58 @@
 	<div class="container-fluid">
 
 		<div class="row">
+			<div class="col-6">
+
+				<div class="card border-light">
+					<h5 class="card-header">
+						System Memory Information
+						<small class="float-sm-right">
+							<!--
+							<div class="btn-group btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-secondary active btn-sm btn-light">
+									<input type="radio" name="options" id="toggle-abs" autocomplete="off" checked> Absolute
+								</label>
+								<label class="btn btn-secondary btn-sm btn-light">
+									<input type="radio" name="options" id="toggle-rel" autocomplete="off"> Relative
+								</label>
+							</div>
+							-->
+						</small>
+					</h5>
+					<div class="card-body">
+						<div id="memory-foo"></div>
+					</div>
+				</div>
+
+			</div> <!-- col -->
+			<div class="col-6">
+
+				<!--
+				<div class="card border-light">
+					<h5 class="card-header">
+						Memory Information
+						<small class="float-sm-right">
+							<div class="btn-group btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-secondary active btn-sm btn-light">
+									<input type="radio" name="options" id="toggle-abs" autocomplete="off" checked> Absolute
+								</label>
+								<label class="btn btn-secondary btn-sm btn-light">
+									<input type="radio" name="options" id="toggle-rel" autocomplete="off"> Relative
+								</label>
+							</div>
+						</small>
+					</h5>
+					<div class="card-body">
+						<div id="memory-overview"></div>
+					</div>
+				</div>
+				-->
+
+
+			</div> <!-- col -->
+		</div> <!-- row -->
+		<div class="row">
+
 			<div class="col-12">
 
 				<!-- 
@@ -78,14 +132,27 @@
 				-->
 
 				<div class="card border-light">
+
 					<h5 class="card-header">
-						Process Table
+						Process Memory Information
+						<small class="float-sm-right">
+
+							<div class="btn-group btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-secondary active btn-sm btn-light">
+									<input type="radio" name="options" id="toggle-abs" autocomplete="off" checked> Absolute
+								</label>
+								<label class="btn btn-secondary btn-sm btn-light">
+									<input type="radio" name="options" id="toggle-rel" autocomplete="off"> Relative
+								</label>
+							</div>
+
+						</small>
 					</h5>
+
 					<div class="card-body">
-
-						<div id="process-table"></div>
-
+						<div id="process-memory-table"></div>
 					</div>
+
 				</div>
 
 			</div> <!-- col -->
@@ -98,7 +165,7 @@
 	<script src="assets/js/tether.min.js"></script>
 	<script src="assets/js/bootstrap.min.js"></script>
 	<script src="assets/js/d3.v4.min.js"></script>
-	<script src='assets/js/process.js'></script>
+	<script src='assets/js/memory.js'></script>
 
 	</body>
 </html>
