@@ -4,8 +4,6 @@ var ws_socket;
 
 
 $(document).ready(function() {
-
-
 	if(!("WebSocket" in window)){
 		console.log("browser support no web sockets");
 		return;
@@ -16,16 +14,39 @@ $(document).ready(function() {
 	initButtonGroup();
 });
 
-var irqMode = 'abs';
+var memory_sort_key = 'Uss';
 
 function initButtonGroup() {
-	console.log('register');
-	$('#toggle-rel').on('change', function () {
-		irqMode = 'rel';
+	$('#toggle-memory-pid').on('change', function () {
+		memory_sort_key = 'pid';
 	});
 
-	$('#toggle-abs').on('change', function () {
-		irqMode = 'abs';
+	$('#toggle-memory-comm').on('change', function () {
+		memory_sort_key = 'comm';
+	});
+
+	$('#toggle-memory-uss').on('change', function () {
+		memory_sort_key = 'Uss';
+	});
+
+	$('#toggle-memory-pss').on('change', function () {
+		memory_sort_key = 'Pss';
+	});
+
+	$('#toggle-memory-rss').on('change', function () {
+		memory_sort_key = 'Rss';
+	});
+
+	$('#toggle-memory-referenced').on('change', function () {
+		memory_sort_key = 'Referenced';
+	});
+
+	$('#toggle-memory-anonymous').on('change', function () {
+		memory_sort_key = 'Anonymous';
+	});
+
+	$('#toggle-memory-locked').on('change', function () {
+		memory_sort_key = 'Locked';
 	});
 }
 
@@ -79,47 +100,29 @@ function processTableHeader() {
 	str  = '<table class="table table-borderless table-sm table-hover table-striped">  <thead><tr>';
 	str += '<th>PID</th>'
 	str += '<th>Name</th>'
-	str += '<th>RSS</th>'
+	str += '<th>Command Line</th>'
 	str += '<th>USS</th>'
 	str += '<th>PSS</th>'
+	str += '<th>RSS</th>'
+	str += '<th>Referenced</th>'
+	str += '<th>Anonymous</th>'
+	str += '<th>Locked</th>'
 	str += '</tr> </thead> <tbody> ';
 	return str
 }
 
-function processIRQEntryAbs(irq, data, noCPUs, interrupts, i)
-{
-	var str = "";
+function humanBytes(fileSizeInBytes) {
+    var i = -1;
+	  if (fileSizeInBytes <= 0)
+		    return fileSizeInBytes;
+    var byteUnits = [' kB', ' MB', ' GB', ' TB', 'PB', 'EB', 'ZB', 'YB'];
+    do {
+        fileSizeInBytes = fileSizeInBytes / 1024;
+        i++;
+    } while (fileSizeInBytes > 1024);
 
-	if (irqDatPrev) {
-		var prev_interrupts = irqDatPrev[irq].cpu[i];
-		if (typeof prev_interrupts !== 'undefined' && prev_interrupts != interrupts) {
-			str += '<td class="update-cell">' + interrupts + '</td>';
-		} else {
-			str += '<td>' + interrupts + '</td>';
-		}
-	} else {
-		str += '<td>' + interrupts + '</td>';
-	}
-	return str;
-}
-
-function processIRQEntryRel(irq, data, noCPUs, interrupts, i)
-{
-	var str = "";
-
-	if (irqDatPrev) {
-		var prev_interrupts = irqDatPrev[irq].cpu[i];
-		if (typeof prev_interrupts !== 'undefined' && prev_interrupts != interrupts) {
-			str += '<td class="update-cell">' + (interrupts - prev_interrupts) + '</td>';
-		} else {
-			str += '<td>' + '0' + '</td>';
-		}
-	} else {
-		str += '<td>' + '0' + '</td>';
-	}
-	return str;
-}
-
+    return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
+};
 
 function processIRQEntry(key, value) {
 	var str;
@@ -127,9 +130,13 @@ function processIRQEntry(key, value) {
 	str = '<tr>';
 	str += '<td>' + key + '</td>';
 	str += '<td>' + value.comm + '</td>';
-	str += '<td>' + value.rss + '</td>';
-	str += '<td>' + value.Uss + '</td>';
-	str += '<td>' + value.Pss + '</td>';
+	str += '<td>' + value.cmdline.substring(0, 90) + '</td>';
+	str += '<td>' + humanBytes(value.Uss) + '</td>';
+	str += '<td>' + humanBytes(value.Pss) + '</td>';
+	str += '<td>' + humanBytes(value.Rss) + '</td>';
+	str += '<td>' + humanBytes(value.Referenced) + '</td>';
+	str += '<td>' + humanBytes(value.Anonymous) + '</td>';
+	str += '<td>' + humanBytes(value.Locked) + '</td>';
 	str += '</tr>';
 	return str;
 }
@@ -139,16 +146,24 @@ function processTableFooter() {
 }
 
 function integerStringSort(a, b) {
-  if (isNaN(a[0]) || isNaN(b[0])) {
-    return a[0] > b[0] ? 1 : -1;
-  }
-  return a[0] - b[0];
+	let key_a = a[1][memory_sort_key];
+	let key_b = b[1][memory_sort_key];
+	if (memory_sort_key == 'pid') {
+		return key_a > key_b ? 1 : -1;
+	}
+	if (memory_sort_key == 'comm') {
+		return key_a.toLowerCase().localeCompare(key_b.toLowerCase());
+	}
+	// Fallback, we show highest number first
+	if (isNaN(key_a) || isNaN(key_b)) {
+		return key_a < key_b ? 1 : -1;
+	}
+	return key_b - key_a;
 }
 
 var irqDatPrev = null;
 
 function processMemoryData(irqData) {
-
 	let output = document.getElementById("process-memory-table");
 	let str = processTableHeader();
   for (const [key, value] of Object.entries(irqData).sort(integerStringSort)) {

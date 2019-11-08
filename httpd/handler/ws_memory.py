@@ -16,7 +16,7 @@ from httpd.utils import log
 
 MEMORY_UPDATE_INTERVAL = 1
 
-SMAPS_WHITELIST = ("Rss", "Pss", "Private_Clean", 'Private_Dirty')
+SMAPS_WHITELIST = ("Rss", "Pss", "Private_Clean", 'Private_Dirty', 'Referenced', 'Anonymous', 'Locked')
 
 def pre_check():
     if not os.path.exists('/proc/self/status'):
@@ -34,7 +34,8 @@ class MemoryHandler:
     def extract_stat_data(self, db_entry, procdata):
         # init with zero,
         # offset by -3 in man proc
-        db_entry['rss'] = int(procdata[21]) * 4096
+        #db_entry['rss'] = int(procdata[21]) * 4096
+        pass
 
     def split_and_pid_name_process(self, line):
         #regex = '^(\d+)\W+\((.*)\)\W+(.*)'
@@ -52,10 +53,19 @@ class MemoryHandler:
             db_entry['comm'] = name
             self.extract_stat_data(db_entry, remain.split(' '))
 
+    def get_cmdline_by_pid(self, pid, db_entry):
+        with open(os.path.join('/proc/', str(pid), 'cmdline'), 'r') as fd:
+            line = fd.readline()
+            cmdline = ' '.join(line.strip().split('\0'))
+            db_entry['cmdline'] = cmdline
+
     def smaps_nullify(self, pid, db_entry):
         db_entry['Rss'] =  -1
         db_entry['Uss'] =  -1
         db_entry['Pss'] =  -1
+        db_entry['Referenced'] =  -1
+        db_entry['Anonymous'] =  -1
+        db_entry['Locked'] =  -1
 
     def get_smaps_by_pid(self, pid, db_entry):
         try:
@@ -85,6 +95,7 @@ class MemoryHandler:
             process_db[pid]['pid'] = pid
             try:
                 self.get_stat_by_pid(pid, process_db[pid])
+                self.get_cmdline_by_pid(pid, process_db[pid])
                 self.get_smaps_by_pid(pid, process_db[pid])
             except FileNotFoundError:
                 del process_db[pid]
