@@ -16,6 +16,8 @@ from collections import OrderedDict
 from aiohttp import web
 from httpd.utils import log
 
+PAGESIZE = os.sysconf("SC_PAGE_SIZE")
+
 active_cpus = multiprocessing.cpu_count()
 
 MEMINFO_WHITELIST = ("MemTotal", "MemFree", "MemAvailable")
@@ -208,7 +210,7 @@ class ResourceHandler(object):
         db_entry['priority'] = int(procdata[15])
         db_entry['nice'] = int(procdata[16])
         db_entry['num-threads'] = int(procdata[17])
-        db_entry['rss'] = int(procdata[21]) * 4096
+        db_entry['rss'] = int(procdata[21]) * PAGESIZE
         db_entry['processor'] = int(procdata[36])
         db_entry['policy'] = self.policy_abbrev_full(int(procdata[38]))
 
