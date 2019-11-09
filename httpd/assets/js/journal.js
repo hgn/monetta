@@ -17,6 +17,9 @@ $(document).ready(function() {
 	registerFilter();
 });
 
+var journal_view = 'extended';
+
+
 function registerFilter() {
 	$("#logfilter").keyup(function() {
 		filter = $(this).val();
@@ -39,6 +42,17 @@ function initButtons() {
       }.bind(this), 10);
     }
   });
+
+	$('#toggle-view-extended').on('change', function () {
+    journal_view = 'extended';
+		redrawJournalList();
+	});
+
+	$('#toggle-view-dense').on('change', function () {
+    journal_view = 'dense';
+		redrawJournalList();
+	});
+
 }
 
 function wsOnOpen(event) {
@@ -196,7 +210,7 @@ function processJournalEntryData(data) {
     redrawJournalList();
 }
 
-function redrawJournalList() {
+function redrawJournalListExtended() {
 	var newstr = ""
 	for (var i = journalEntryArray.length - 1; i > 0; i--) {
 	  // if a filter was set we ignore all messages not
@@ -219,6 +233,39 @@ function redrawJournalList() {
 	}
 	let output = document.getElementById("anchor-journal");
 	output.innerHTML = newstr;
+}
+
+function redrawJournalListDense() {
+	var newstr = ""
+	for (var i = journalEntryArray.length - 1; i > 0; i--) {
+	  // if a filter was set we ignore all messages not
+		// matching the string, we using includes() here,
+		// no fancy regex, etc.
+		if (filter != "") {
+			if (!journalEntryArray[i].message.toLowerCase().includes(filter.toLowerCase()))
+				continue
+		}
+		newstr = newstr
+			+ '<a href="#myModal" data-toggle="modal" class="nullspacer list-group-item list-group-item-action flex-column align-items-start '
+		  + itemSelectPriorityColor(journalEntryArray[i]) + '">'
+		  + '<div class="d-flex w-100 justify-content-between"> <h5 class="mb-1">'
+			+ journalEntryArray[i].message
+		  + '</h5><small>'
+		  + journalEntryArray[i].realtime
+			+ ' </small></div>'
+		  + '</a>';
+	}
+	let output = document.getElementById("anchor-journal");
+	output.innerHTML = newstr;
+}
+
+
+function redrawJournalList() {
+  if (journal_view == 'extended') {
+    redrawJournalListExtended();
+  } else {
+    redrawJournalListDense();
+  }
 }
 
 function processJournalInfoData(data) {

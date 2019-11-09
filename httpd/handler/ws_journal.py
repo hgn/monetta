@@ -90,11 +90,22 @@ class JournalHandler(object):
         await self.ws.send_json(data)
 
     async def sync_info(self):
-        cmd = "journalctl -q -o json"
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        output, _ = p.communicate()
-        p_status = p.wait()
-        output = output.decode("utf-8").rstrip()
+        """
+        Just for process names, queries the last 50.000 entries
+        in the database, compromise between available commands and
+        time to query a large database.
+        FIXME: ideal, during programstart a global process list
+        is created which is updated all the time during journalctl
+        reads.
+        """
+        cmd = "journalctl -n 50000 -q -o json".split()
+        process = await asyncio.create_subprocess_exec(
+                    *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+                    )
+        stdout, stderr = await process.communicate()
+        if process.returncode != 0:
+            return
+        output = stdout.decode("utf-8").rstrip()
         set_comm = set()
         for line in output.split("\n"):
             data = json.loads(line)
@@ -105,12 +116,17 @@ class JournalHandler(object):
         data['data-info']['list-comm'] = list(set_comm)
         await self.ws.send_json(data)
 
-async def handle(request):
+def log_peer(request):
     peername = request.transport.get_extra_info('peername')
     host = port = "unknown"
     if peername is not None:
         host, port = peername[0:2]
     log.debug("web journal socket request from {}[{}]".format(host, port))
+
+
+async def handle(request):
+    if False:
+        log_peer(request)
 
     ws = web.WebSocketResponse()
     await ws.prepare(request)

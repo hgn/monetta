@@ -101,3 +101,8 @@ span.navback.navbar-text {
   background-color: #2196F3;
   color: white;
 }
+
+.nullspacer {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
