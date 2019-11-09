@@ -26,31 +26,31 @@ body {
 }
 
 .item-emerg {
-	border-left:   4px solid #e036ff;
+	border-left:   6px solid #ad0090;
 }
 .item-alert {
-	border-left:   4px solid #e036ff;
+	border-left:   6px solid #e036ff;
 }
 .item-crit {
-	border-left:   4px solid #e036ff;
+	border-left:   6px solid #ff43ce;
 }
 .item-err {
-	border-left:   4px solid red;
+	border-left:   6px solid red;
 }
 .item-warning {
-	border-left:   4px solid #ff8100;
+	border-left:   6px solid #ff8100;
 }
 .item-notice {
-	border-left:   4px solid #ff9800;
+	border-left:   6px solid #ffce85;
 }
 .item-info {
-	border-left:   4px solid #cddc39;
+	border-left:   6px solid #cddc39;
 }
 .item-debug {
-	border-left:   4px solid #00bcd4;
+	border-left:   6px solid #00bcd4;
 }
 .item-unknown {
-	border-left:   4px solid black;
+	border-left:   6px solid black;
 }
 
 .text-supermuted {

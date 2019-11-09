@@ -99,7 +99,7 @@
 					<div class="card">
 						<div class="card-header" role="tab" id="headingOne">
 							<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-controls="collapseOne">
-								Priority
+								<h5>Priority</h5>
 							</a>
 						</div>
 
@@ -112,54 +112,122 @@
 								</div><hr />
 
 
-								<div class="form-check">
-									<label class="form-check-label">
-										<input class="form-check-input .active" type="checkbox" value="">
-										emerg
-									</label>
-								</div>
-								<div class="form-check">
-									<label class="form-check-label">
-										<input class="form-check-input" type="checkbox" value="">
-										alert
-									</label>
-								</div>
-								<div class="form-check">
-									<label class="form-check-label">
-										<input class="form-check-input" type="checkbox" value="">
-										crit
-									</label>
-								</div>
-								<div class="form-check">
-									<label class="form-check-label">
-										<input class="form-check-input" type="checkbox" value="">
-										err
-									</label>
-								</div>
-								<div class="form-check">
-									<label class="form-check-label">
-										<input class="form-check-input" type="checkbox" value="">
-										warning
-									</label>
-								</div>
-								<div class="form-check">
-									<label class="form-check-label">
-										<input class="form-check-input" type="checkbox" value="">
-										notice
-									</label>
-								</div>
-								<div class="form-check">
-									<label class="form-check-label">
-										<input class="form-check-input" type="checkbox" value="">
-										info
-									</label>
-								</div>
-								<div class="form-check">
-									<label class="form-check-label">
-										<input class="form-check-input" type="checkbox" value="">
-										debug
-									</label>
-								</div>
+								<div class="container">
+
+									<div class="row">
+										<div class="col col-sm-2">
+										</div>
+										<div class="col col-sm-2">
+											<div class="form-check">
+												<input type="checkbox" checked class="form-check-input"
+												id="check-level-emergency">
+											</div>
+										</div>
+										<div class="col col-sm-8 item-emerg">
+											Emergency
+										</div>
+									</div><!-- row -->
+
+									<div class="row">
+										<div class="col col-sm-2">
+										</div>
+										<div class="col col-sm-2">
+											<div class="form-check">
+												<input type="checkbox" checked class="form-check-input"
+												id="check-level-alert">
+											</div>
+										</div>
+										<div class="col col-sm-6 item-alert">
+											Alert
+										</div>
+									</div><!-- row -->
+
+									<div class="row">
+										<div class="col col-sm-2">
+										</div>
+										<div class="col col-sm-2">
+											<div class="form-check">
+												<input type="checkbox" checked class="form-check-input"
+												id="check-level-critical">
+											</div>
+										</div>
+										<div class="col col-sm-8 item-crit">
+											Critical
+										</div>
+									</div><!-- row -->
+
+									<div class="row">
+										<div class="col col-sm-2">
+										</div>
+										<div class="col col-sm-2">
+											<div class="form-check">
+												<input type="checkbox" checked class="form-check-input"
+												id="check-level-error">
+											</div>
+										</div>
+										<div class="col col-sm-8 item-err">
+											Error
+										</div>
+									</div><!-- row -->
+
+									<div class="row">
+										<div class="col col-sm-2">
+										</div>
+										<div class="col col-sm-2">
+											<div class="form-check">
+												<input type="checkbox" checked class="form-check-input"
+												id="check-level-warning">
+											</div>
+										</div>
+										<div class="col col-sm-8 item-warning">
+											Warning
+										</div>
+									</div><!-- row -->
+
+									<div class="row">
+										<div class="col col-sm-2">
+										</div>
+										<div class="col col-sm-2">
+											<div class="form-check">
+												<input type="checkbox" checked class="form-check-input"
+												id="check-level-notice">
+											</div>
+										</div>
+										<div class="col col-sm-8 item-notice">
+											Notice
+										</div>
+									</div><!-- row -->
+
+									<div class="row">
+										<div class="col col-sm-2">
+										</div>
+										<div class="col col-sm-2">
+											<div class="form-check">
+												<input type="checkbox" checked class="form-check-input"
+												id="check-level-info">
+											</div>
+										</div>
+										<div class="col col-sm-8 item-info">
+											Info
+										</div>
+									</div><!-- row -->
+
+									<div class="row">
+										<div class="col col-sm-2">
+										</div>
+										<div class="col col-sm-2">
+											<div class="form-check">
+												<input type="checkbox" checked class="form-check-input"
+												id="check-level-debug">
+											</div>
+										</div>
+										<div class="col col-sm-8 item-debug">
+											Debug
+										</div>
+									</div><!-- row -->
+
+								</div> <!-- container -->
+								<br />
 
 
 							</div>
@@ -168,7 +236,7 @@
 					<div class="card">
 						<div class="card-header" role="tab" id="headingTwo">
 							<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-								Processes
+								<h5>Processes</h5>
 							</a>
 						</div>
 						<div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
