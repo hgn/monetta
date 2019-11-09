@@ -127,6 +127,11 @@ function journalSaveNewEntry(entry) {
 		realtime = journalRealTimeToHuman(entry['__REALTIME_TIMESTAMP']);
 	}
 
+	var timestamp = new Date(2000, 1, 1);
+	if ('__REALTIME_TIMESTAMP' in entry) {
+		timestamp = new Date(entry['__REALTIME_TIMESTAMP'] / 1000);
+	}
+
 	var human_prio = "unknown"
 	if ('PRIORITY' in entry) {
 		var prio = entry['PRIORITY'];
@@ -158,7 +163,8 @@ function journalSaveNewEntry(entry) {
         cmdline: cmdline,
         transport: transport,
         comm: comm,
-        realtime: realtime
+        realtime: realtime,
+        timestamp: timestamp
     };
 
     journalEntryArray.push(element);
@@ -206,8 +212,8 @@ function processJournalEntriesData(data) {
 }
 
 function processJournalEntryData(data) {
-	journalSaveNewEntry(data);
-    redrawJournalList();
+  journalSaveNewEntry(data);
+  redrawJournalList();
 }
 
 function redrawJournalListExtended() {
@@ -235,7 +241,25 @@ function redrawJournalListExtended() {
 	output.innerHTML = newstr;
 }
 
+var timestampPrev;
+
+function timestampDeltaInit() {
+  timestampPrev = null;
+}
+
+function timestampDeltaCalc(time) {
+  if (timestampPrev == null) {
+    timestampPrev = time;
+    return "↥ ∞";
+  }
+
+  var delta = parseFloat((timestampPrev - time) / 1000).toFixed(3);
+  timestampPrev = time;
+  return "↥ " + delta + "s";
+}
+
 function redrawJournalListDense() {
+  timestampDeltaInit();
 	var newstr = ""
 	for (var i = journalEntryArray.length - 1; i > 0; i--) {
 	  // if a filter was set we ignore all messages not
@@ -245,13 +269,14 @@ function redrawJournalListDense() {
 			if (!journalEntryArray[i].message.toLowerCase().includes(filter.toLowerCase()))
 				continue
 		}
+    var delta_to_pref = timestampDeltaCalc(journalEntryArray[i].timestamp);
 		newstr = newstr
 			+ '<a href="#myModal" data-toggle="modal" class="nullspacer list-group-item list-group-item-action flex-column align-items-start '
 		  + itemSelectPriorityColor(journalEntryArray[i]) + '">'
 		  + '<div class="d-flex w-100 justify-content-between"> <h5 class="mb-1">'
 			+ journalEntryArray[i].message
 		  + '</h5><small>'
-		  + journalEntryArray[i].realtime
+		  + delta_to_pref
 			+ ' </small></div>'
 		  + '</a>';
 	}
