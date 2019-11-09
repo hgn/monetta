@@ -13,19 +13,28 @@ $(document).ready(function() {
 		initWebSockets();
 	}
 
+
+	cookieLoadView();
 	initButtons();
 	registerFilter();
 });
 
-var journal_view = 'extended';
-
-
 function registerFilter() {
 	$("#logfilter").keyup(function() {
 		filter = $(this).val();
-		console.log(filter);
 		redrawJournalList();
 	});
+}
+
+var journal_view = 'extended';
+
+function cookieLoadView() {
+  journal_view = getCookie("journal-view", 'extended');
+  if (journal_view == 'extended') {
+    $('#toggle-view-extended').closest('.btn').button('toggle');
+  } else {
+    $('#toggle-view-dense').closest('.btn').button('toggle');
+  }
 }
 
 function initButtons() {
@@ -46,11 +55,13 @@ function initButtons() {
 	$('#toggle-view-extended').on('change', function () {
     journal_view = 'extended';
 		redrawJournalList();
+    setCookie("journal-view", 'extended');
 	});
 
 	$('#toggle-view-dense').on('change', function () {
     journal_view = 'dense';
 		redrawJournalList();
+    setCookie("journal-view", 'dense', 365);
 	});
 
 }
