@@ -97,8 +97,26 @@ span.navback.navbar-text {
 	color: #b3b3b380;
 }
 
-.update-cell {
-  background-color: #2196F3;
+
+/* color picker: https://www.colorbox.io/ */
+.irq-update-rate-lowest {
+  background-color: #358C02;
+  color: white;
+}
+.irq-update-rate-low {
+  background-color: #7F9100;
+  color: white;
+}
+.irq-update-rate-mid {
+  background-color: #966600;
+  color: white;
+}
+.irq-update-rate-high {
+  background-color: #9D2F00;
+  color: white;
+}
+.irq-update-rate-highest {
+  background-color: #B00000;
   color: white;
 }
 

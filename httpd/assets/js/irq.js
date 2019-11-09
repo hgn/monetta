@@ -106,6 +106,27 @@ function processIRQEntryAbs(irq, data, noCPUs, interrupts, i)
 	return str;
 }
 
+function irqRelativeColorPicker(diff) {
+	const x = diff
+	switch (true) {
+			case (x < 5):
+					return 'irq-update-rate-lowest';
+					break;
+			case (x < 10):
+					return 'irq-update-rate-low';
+					break;
+			case (x < 25):
+					return 'irq-update-rate-mid';
+					break;
+			case (x < 100):
+					return 'irq-update-rate-high';
+					break;
+			default:
+					return 'irq-update-rate-highest';
+					break;
+	}
+}
+
 function processIRQEntryRel(irq, data, noCPUs, interrupts, i)
 {
 	var str = "";
@@ -113,7 +134,9 @@ function processIRQEntryRel(irq, data, noCPUs, interrupts, i)
 	if (irqDatPrev) {
 		var prev_interrupts = irqDatPrev[irq].cpu[i];
 		if (typeof prev_interrupts !== 'undefined' && prev_interrupts != interrupts) {
-			str += '<td class="update-cell">' + (interrupts - prev_interrupts) + '</td>';
+			let irq_diff = interrupts - prev_interrupts;
+			let css_class = irqRelativeColorPicker(irq_diff);
+			str += '<td class="' + css_class + '">' + irq_diff + '</td>';
 		} else {
 			str += '<td>' + '0' + '</td>';
 		}
