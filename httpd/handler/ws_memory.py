@@ -14,6 +14,8 @@ from aiohttp import web
 
 from httpd.utils import log
 
+PAGESIZE = os.sysconf("SC_PAGE_SIZE")
+
 MEMORY_UPDATE_INTERVAL = 1
 
 SMAPS_WHITELIST = ("Rss", "Pss", "Private_Clean", 'Private_Dirty', 'Referenced', 'Anonymous', 'Locked')
@@ -59,6 +61,12 @@ class MemoryHandler:
             cmdline = ' '.join(line.strip().split('\0'))
             db_entry['cmdline'] = cmdline
 
+    def get_statm_by_pid(self, pid, db_entry):
+        with open(os.path.join('/proc/', str(pid), 'statm'), 'r') as pidfile:
+            proctimes = pidfile.readline()
+            size, resident, shared, text, _, data, _ = proctimes.split()
+            db_entry['StatmText'] = text * PAGESIZE
+
     def smaps_nullify(self, pid, db_entry):
         db_entry['Rss'] =  -1
         db_entry['Uss'] =  -1
@@ -97,6 +105,7 @@ class MemoryHandler:
                 self.get_stat_by_pid(pid, process_db[pid])
                 self.get_cmdline_by_pid(pid, process_db[pid])
                 self.get_smaps_by_pid(pid, process_db[pid])
+                #self.get_statm_by_pid(pid, process_db[pid])
             except FileNotFoundError:
                 del process_db[pid]
         return process_db

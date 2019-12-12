@@ -107,6 +107,7 @@ function processTableHeader() {
 	str += '<th>Referenced</th>'
 	str += '<th>Anonymous</th>'
 	str += '<th>Locked</th>'
+	str += '<th>Text</th>'
 	str += '</tr> </thead> <tbody> ';
 	return str
 }
