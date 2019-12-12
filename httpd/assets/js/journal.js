@@ -178,6 +178,13 @@ function journalSaveNewEntry(entry) {
         timestamp: timestamp
     };
 
+	  if (journalEntryArray.length >= 50000) {
+			// just to limit the amount of recorded log
+			// entries for the browser, if not the browser
+			// will run out of memory
+			journalEntryArray.shift();
+		}
+
     journalEntryArray.push(element);
 }
 
