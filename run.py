@@ -22,6 +22,9 @@ from httpd.handler import ws_process
 from httpd.handler import ws_memory
 from httpd.handler import ws_irq
 
+# import rest handler
+from httpd.rest import fs
+
 try:
     import pympler.summary
     import pympler.muppy
