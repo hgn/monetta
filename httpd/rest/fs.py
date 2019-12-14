@@ -12,6 +12,7 @@ import pprint
 import stat
 import pwd
 import grp
+import datetime
 import concurrent.futures
 
 from aiohttp import web
@@ -60,20 +61,19 @@ def gen_entry(path, filename, filestat):
     """
     e = dict()
     e['path'] = path
-    e['filename'] = filename
+    e['name'] = filename
 
     mode = filestat.st_mode
-    e['filemode'] = stat.filemode(mode)
+    e['mode'] = stat.filemode(mode)
     if stat.S_ISLNK(mode):
         e['symbolic-link'] = True
-    e['filesize'] = filestat.st_size
-    e['uid'] = filestat.st_uid
-    e['gid'] = filestat.st_gid
+    e['size'] = filestat.st_size
+    #e['uid'] = filestat.st_uid
+    #e['gid'] = filestat.st_gid
     e['user'] = uid_to_name(filestat.st_uid)
     e['group'] = gid_to_name(filestat.st_gid)
 
-    mtime = time.strftime("%X %x", time.gmtime(filestat.st_mtime))
-
+    mtime = datetime.datetime.fromtimestamp(filestat.st_mtime).strftime('%Y-%m-%d %H:%M')
     e['mtime'] = mtime
     return e
 
@@ -87,7 +87,6 @@ def is_blocked(path):
 
 def fs_data(request):
     root_path = request.match_info.get('path', '/')
-    print(root_path)
     db = dict()
     db['stats'] = dict()
     db['stats']['directories'] = 0
