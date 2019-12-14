@@ -7,6 +7,7 @@ import asyncio
 import asyncio
 import concurrent.futures
 
+from aiohttp import web
 
 def blocking_io():
     # File operations (such as logging) can block the
