@@ -115,22 +115,26 @@ async def handle_index(request):
     raise web.HTTPFound('journal')
 
 def setup_routes(app, conf):
-    app.router.add_route('GET', '/api/v1/ping', api_ping.handle)
-
     app.router.add_route('GET', '/download/journal-short', handle_download_short)
     app.router.add_route('GET', '/download/journal-json', handle_download_json)
 
+    # web socket handler
     app.router.add_route('GET', '/ws-journal', ws_journal.handle)
     app.router.add_route('GET', '/ws-utilization', ws_utilization.handle)
     app.router.add_route('GET', '/ws-process', ws_process.handle)
     app.router.add_route('GET', '/ws-memory', ws_memory.handle)
     app.router.add_route('GET', '/ws-irq', ws_irq.handle)
 
+    # web html pages
     app.router.add_route('GET', '/journal', handle_journal)
     app.router.add_route('GET', '/utilization', handle_utilization)
     app.router.add_route('GET', '/process', handle_process)
     app.router.add_route('GET', '/memory', handle_memory)
     app.router.add_route('GET', '/irq', handle_irq)
+
+    # classic REST APIs
+    app.router.add_route('GET', '/api/v1/fs', fs.handle)
+    app.router.add_route('GET', '/api/v1/ping', api_ping.handle)
 
     path_assets = os.path.join(app['path-root'], "httpd/assets")
     app.router.add_static('/assets', path_assets, show_index=False)
@@ -231,26 +235,10 @@ def configuration_check(conf):
                          "a path in db section\n")
         sys.exit(EXIT_FAILURE)
 
-
-def init_logging(conf):
-    return
-    log_level_conf = "warning"
-    if conf.common.logging:
-        log_level_conf = conf.common.logging
-    numeric_level = getattr(logging, log_level_conf.upper(), None)
-    if not isinstance(numeric_level, int):
-        raise ValueError('Invalid log level: {}'.format(numeric_level))
-    logging.basicConfig(level=numeric_level, format='%(message)s')
-    log.error("Log level configuration: {}".format(log_level_conf))
-
-
-
 def conf_init():
     args = parse_args()
     conf = load_configuration_file(args)
-    init_logging(conf)
     return conf
-
 
 if __name__ == '__main__':
     info_str = sys.version.replace('\n', ' ')
