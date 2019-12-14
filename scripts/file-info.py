@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import math
 import time
@@ -52,16 +53,15 @@ def gen_entry(path, filename, filestat):
     """
     e = dict()
     e['path'] = path
-    e['filename'] = filename
+    e['name'] = filename
 
     mode = filestat.st_mode
-    e['filemode'] = stat.filemode(mode)
-    if filestat.S_ISLINK(mode):
-        print('xxx')
+    e['mode'] = stat.filemode(mode)
+    if stat.S_ISLNK(mode):
         e['symbolic-link'] = True
-    e['filesize'] = filestat.st_size
-    e['uid'] = filestat.st_uid
-    e['gid'] = filestat.st_gid
+    e['size'] = filestat.st_size
+    #e['uid'] = filestat.st_uid
+    #e['gid'] = filestat.st_gid
     e['user'] = uid_to_name(filestat.st_uid)
     e['group'] = gid_to_name(filestat.st_gid)
 
@@ -83,7 +83,7 @@ for (path, dirs, files) in os.walk(start_path):
         if is_blocked(full_path):
             continue
         try:
-            fstat = os.stat(full_path)
+            fstat = os.lstat(full_path)
         except FileNotFoundError:
             continue
         except PermissionError:
