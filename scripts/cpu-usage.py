@@ -2,14 +2,16 @@
 # coding: utf-8
 
 import os
-import sys
 import time
 import multiprocessing
 import re
 
+h = re.compile('^(\d+)\W+\((.*)\)\W+(.*)')
+
 active_cpus = multiprocessing.cpu_count()
 
 print("no active CPUs: {}".format(active_cpus))
+
 
 def system_load_all():
     with open('/proc/stat', 'r') as procfile:
@@ -21,6 +23,7 @@ def system_load_all():
             cputotal = (cputotal + i)
         return(float(cputotal))
 
+
 def state_abbrev_full(char):
     return {
             'R': 'running',
@@ -30,6 +33,7 @@ def state_abbrev_full(char):
             'T': 'stopped',
             't': 'tracing'
     }.get(char, 'unknown ({})'.format(char))
+
 
 def extract_stat_data(db_entry, procdata):
     # init with zero
@@ -51,13 +55,14 @@ def extract_stat_data(db_entry, procdata):
     #db_entry['minflt'] = int(procdata[7])
     #db_entry['majflt'] = int(procdata[9])
 
-h = re.compile('^(\d+)\W+\((.*)\)\W+(.*)')
+
 
 def split_and_pid_name_process(line):
-    #regex = '^(\d+)\W+\((.*)\)\W+(.*)'
+    # regex = '^(\d+)\W+\((.*)\)\W+(.*)'
     r = re.search(h, line)
     if not r: return False, None, None, None
     return True, r.group(1), r.group(2), r.group(3)
+
 
 def process_stat_data_by_pid_ng(pid, db_entry):
     with open(os.path.join('/proc/', str(pid), 'stat'), 'r') as pidfile:
@@ -69,12 +74,15 @@ def process_stat_data_by_pid_ng(pid, db_entry):
         db_entry['comm'] = name
         extract_stat_data(db_entry, remain.split(' '))
 
+
 def process_load_sum(v):
     return v['stime'] + v['utime'] + v['cstime'] + v['cutime']
+
 
 def process_load_stamp_all(process_db):
     for v in process_db.values():
         v['cutime_prev'] = process_load_sum(v)
+
 
 def update_cpu_usage_process(process_db, system_load_prev, system_load_cur):
     for k, v in process_db.items():
@@ -90,6 +98,7 @@ def update_cpu_usage_process(process_db, system_load_prev, system_load_cur):
         v['load'] = int(res)
         v['cutime_prev'] = process_load_cur
 
+
 def update_cpu_usage(system_db, process_db):
     system_load_cur = system_load_all()
     if not 'system-load-prev' in system_db:
@@ -99,6 +108,7 @@ def update_cpu_usage(system_db, process_db):
     system_load_prev = system_db['system-load-prev']
     update_cpu_usage_process(process_db, system_load_prev, system_load_cur)
     system_db['system-load-prev'] = system_load_cur
+
 
 def processes_update(system_db, db):
     no_processes = 0
@@ -135,6 +145,7 @@ def process_show(db):
         data += ','.join(['{0}:{1}'.format(k2, v2) for k2,v2 in v.items()])
         print(data)
 
+
 def prepare_data(system_db, process_db, update_interval):
     """
     we do not generate a ordering, that the list is now ordered by
@@ -150,8 +161,10 @@ def prepare_data(system_db, process_db, update_interval):
         process_list.append(process_entry)
     ret['process-list'] = process_list
 
+
 def system_show(db):
     print('processes: {}'.format(db['process-no']))
+
 
 process_db = dict()
 system_db = dict()
