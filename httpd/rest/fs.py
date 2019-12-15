@@ -2,13 +2,7 @@
 # coding: utf-8
 
 import os
-import sys
 import asyncio
-import asyncio
-import math
-import time
-import collections
-import pprint
 import stat
 import pwd
 import grp
@@ -58,6 +52,10 @@ def gen_entry(path, filename, filestat):
     Try to not add default values like is_link to
     the data set, because it can be quite large for
     some setups
+
+    Not used at the moment to save space:
+    - e['uid'] = filestat.st_uid
+    - e['gid'] = filestat.st_gid
     """
     e = dict()
     e['path'] = path
@@ -68,12 +66,11 @@ def gen_entry(path, filename, filestat):
     if stat.S_ISLNK(mode):
         e['symbolic-link'] = True
     e['size'] = filestat.st_size
-    #e['uid'] = filestat.st_uid
-    #e['gid'] = filestat.st_gid
     e['user'] = uid_to_name(filestat.st_uid)
     e['group'] = gid_to_name(filestat.st_gid)
 
-    mtime = datetime.datetime.fromtimestamp(filestat.st_mtime).strftime('%Y-%m-%d %H:%M')
+    dt = datetime.datetime.fromtimestamp(filestat.st_mtime)
+    mtime = dt.strftime('%Y-%m-%d %H:%M')
     e['mtime'] = mtime
     return e
 
@@ -109,6 +106,7 @@ def handle_root_dirs(request):
             db['files'].append(path)
     return web.json_response(db)
 
+
 def handle_file_listing(request):
     root_path = '/'
     if 'path' in request.rel_url.query:
@@ -141,10 +139,8 @@ def handle_file_listing(request):
     return web.json_response(db)
 
 
-
 async def handle(request):
     # root = request.app['path-root']
     loop = asyncio.get_running_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:
         return await loop.run_in_executor(pool, handle_fs, request)
-
