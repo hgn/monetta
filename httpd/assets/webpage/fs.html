@@ -16,9 +16,9 @@
 
 			<link rel="stylesheet" href="assets/css/bootstrap.min.css">
 			<link rel="stylesheet" href="assets/css/bootstrap-grid.min.css">
-			<link rel="stylesheet" href="assets/css/style-gen.css">
 			<link rel="stylesheet" href="assets/css/style-utilization.css">
 			<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+			<link rel="stylesheet" href="assets/css/style-gen.css">
 		<title>Monetta</title>
 	</head>
 	<body>
@@ -44,8 +44,8 @@
 				<li class="nav-item">
 					<a class="nav-link" href="utilization">Utilization</a>
 				</li>
-				<li class="nav-item active">
-					<a class="nav-link" href="#">Scheduling</a>
+				<li class="nav-item">
+					<a class="nav-link" href="process">Scheduling</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="memory">Memory</a>
@@ -53,13 +53,14 @@
 				<li class="nav-item">
 					<a class="nav-link" href="irq">Interrupts</a>
 				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="fs">Filesystem</a>
+				<li class="nav-item active">
+					<a class="nav-link" href="#">Filesystem</a>
 				</li>
 			</ul>
-
-			<span class="navbar-text">
-				@server-stats: x239923
+			<span class="navback navbar-text">
+				@server:
+				processing-time:<span id="info-processing-time">∅</span>
+				update:<span id="info-updates">∅</span>
 			</span>
 		</div>
 	</nav>
@@ -83,11 +84,12 @@
 
 				<div class="card border-light">
 					<h5 class="card-header">
-						Process Table
+						Filesystem
 					</h5>
 					<div class="card-body">
 
-						<div id="process-table"></div>
+						<div id="fs-table">
+						</div>
 
 					</div>
 				</div>
@@ -102,7 +104,7 @@
 	<script src="assets/js/tether.min.js"></script>
 	<script src="assets/js/bootstrap.min.js"></script>
 	<script src="assets/js/d3.v4.min.js"></script>
-	<script src='assets/js/process.js'></script>
+	<script src='assets/js/fs.js'></script>
 
 	</body>
 </html>

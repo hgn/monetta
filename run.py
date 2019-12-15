@@ -103,6 +103,13 @@ async def handle_irq(request):
         return web.Response(body=content, content_type='text/html')
 
 
+async def handle_fs(request):
+    root = request.app['path-root']
+    full = os.path.join(root, "httpd/assets/webpage/fs.html")
+    with open(full, 'r') as content_file:
+        content = str.encode(content_file.read())
+        return web.Response(body=content, content_type='text/html')
+
 async def handle_download_short(request):
     cmd = "journalctl -q -o short"
     output = subprocess.check_output(cmd, shell=True)
@@ -138,6 +145,7 @@ def setup_routes(app, conf):
     app.router.add_route('GET', '/process', handle_process)
     app.router.add_route('GET', '/memory', handle_memory)
     app.router.add_route('GET', '/irq', handle_irq)
+    app.router.add_route('GET', '/fs', handle_fs)
 
     # classic REST APIs
     app.router.add_route('GET', '/api/v1/fs', fs.handle)
