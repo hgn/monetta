@@ -85,8 +85,37 @@ def is_blocked(path):
     return False
 
 
-def fs_data(request):
-    root_path = request.match_info.get('path', '/')
+def handle_fs(request):
+    gen_err_msg = 'mode argument missing, need "file-listing" or "root-dir"'
+    if 'mode' not in request.rel_url.query:
+        return web.HTTPBadRequest(text=gen_err_msg)
+    if request.rel_url.query['mode'] == "file-listing":
+        return handle_file_listing(request)
+    elif request.rel_url.query['mode'] == "root-dir":
+        return handle_root_dirs(request)
+    return web.HTTPBadRequest(text=gen_err_msg)
+
+
+def handle_root_dirs(request):
+    db = dict()
+    db['files'] = list()
+    db['directories'] = list()
+    entries = os.listdir("/")
+    for entry in entries:
+        path = os.path.join("/", entry)
+        if os.path.isdir(path):
+            db['directories'].append(path)
+        else:
+            db['files'].append(path)
+    return web.json_response(db)
+
+def handle_file_listing(request):
+    root_path = '/'
+    if 'path' in request.rel_url.query:
+        root_path = str(request.rel_url.query['path'])
+        if root_path[0] != '/':
+            return web.HTTPBadRequest(text='path must start with slash')
+
     db = dict()
     db['stats'] = dict()
     db['stats']['directories'] = 0
@@ -109,13 +138,13 @@ def fs_data(request):
             entry = gen_entry(path, file_, fstat)
             db['files'].append(entry)
             db['stats']['files'] += 1
-    return db
+    return web.json_response(db)
+
 
 
 async def handle(request):
     # root = request.app['path-root']
     loop = asyncio.get_running_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:
-        db = await loop.run_in_executor(pool, fs_data, request)
-        return  web.json_response(db)
+        return await loop.run_in_executor(pool, handle_fs, request)
 

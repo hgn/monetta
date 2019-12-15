@@ -121,6 +121,7 @@ async def handle_index(request):
 
 
 def setup_routes(app, conf):
+    # FIXME: should be normal rest URLs, see "classic REST APIs"
     app.router.add_route('GET', '/download/journal-short', handle_download_short)
     app.router.add_route('GET', '/download/journal-json', handle_download_json)
 
