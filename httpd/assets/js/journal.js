@@ -13,8 +13,8 @@ $(document).ready(function() {
 		initWebSockets();
 	}
 
-
 	cookieLoadView();
+	cookieLoadFilter();
 	initButtons();
 	registerFilter();
 
@@ -25,6 +25,7 @@ function registerFilter() {
 	$("#logfilter").keyup(function() {
 		filter = $(this).val();
 		redrawJournalList();
+		setCookie("journal-filter", filter);
 	});
 }
 
@@ -37,6 +38,12 @@ function cookieLoadView() {
   } else {
     $('#toggle-view-dense').closest('.btn').button('toggle');
   }
+}
+
+function cookieLoadFilter() {
+	filter = getCookie("journal-filter", '');
+	var text_field = document.getElementById("logfilter");
+	text_field.value = filter;
 }
 
 function initButtons() {
@@ -70,7 +77,6 @@ function initButtons() {
 
 function wsOnOpen(event) {
 	mySocket.send("history");
-	mySocket.send("info");
 	mySocket.send("journal-sync-start");
 }
 
@@ -215,7 +221,7 @@ function itemSelectPriorityColor(entry) {
 
 function journalEntryConstructSubtitle(entry) {
 	var str = "comm: " + entry.comm
-		+ ' / prio: ' + entry.priority
+		+ ' / priority: ' + entry.priority
 	  + ' / pid: ' +  entry.pid
 	  + ' / uid: ' +  entry.uid
 	  + ' / gid: ' +  entry.gid
@@ -445,33 +451,12 @@ function redrawJournalList() {
   }
 }
 
-function processJournalInfoData(data) {
-    if ('list-comm' in data) {
-        var comm_entries = data['list-comm'].sort().reverse();
-        var newstr = '<div class="btn-group" role="group" aria-label="Basic example">'
-            + '<button type="button" class="btn btn-secondary btn-sm">Deselect All</button>'
-            + '<button type="button" class="btn btn-secondary btn-sm">Select All</button>'
-            + '</div><hr />'
-        for (var i = comm_entries.length - 1; i > 0; i--) {
-            newstr = newstr +
-                '<div class="form-check"><label class="form-check-label">' +
-                '<input class="form-check-input" type="checkbox" value=""> ' +
-                comm_entries[i] +
-                '</label></div>';
-        }
-        var output = document.getElementById("process-list");
-        output.innerHTML = newstr;
-    }
-}
-
 function wsOnMessage(event) {
 	var jdata = JSON.parse(event.data);
 	if ('data-log-entry' in jdata) {
 		processJournalEntryData(jdata['data-log-entry']);
 	} else if ('data-log-entries' in jdata) {
 		processJournalEntriesData(jdata['data-log-entries']);
-	} else if ('data-info' in jdata) {
-		processJournalInfoData(jdata['data-info']);
 	} else {
 		console.log("data not handled");
 	}

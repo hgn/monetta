@@ -97,165 +97,7 @@
 			<div class="col-2">
 
 
-
-				<div id="accordion" role="tablist" aria-multiselectable="true">
-					<div class="card">
-						<div class="card-header" role="tab" id="headingOne">
-							<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-controls="collapseOne">
-								<h5>Priority</h5>
-							</a>
-						</div>
-
-						<div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne">
-							<div class="card-block">
-
-								<div class="btn-group" role="group" aria-label="basic example">
-									<button type="button" class="btn btn-secondary btn-light btn-sm">deselect all</button>
-									<button type="button" class="btn btn-secondary btn-light btn-sm">select all</button>
-								</div><hr />
-
-
-								<div class="container">
-
-									<div class="row">
-										<div class="col col-sm-2">
-										</div>
-										<div class="col col-sm-2">
-											<div class="form-check">
-												<input type="checkbox" checked class="form-check-input"
-												id="check-level-emergency">
-											</div>
-										</div>
-										<div class="col col-sm-8 item-emerg">
-											Emergency
-										</div>
-									</div><!-- row -->
-
-									<div class="row">
-										<div class="col col-sm-2">
-										</div>
-										<div class="col col-sm-2">
-											<div class="form-check">
-												<input type="checkbox" checked class="form-check-input"
-												id="check-level-alert">
-											</div>
-										</div>
-										<div class="col col-sm-6 item-alert">
-											Alert
-										</div>
-									</div><!-- row -->
-
-									<div class="row">
-										<div class="col col-sm-2">
-										</div>
-										<div class="col col-sm-2">
-											<div class="form-check">
-												<input type="checkbox" checked class="form-check-input"
-												id="check-level-critical">
-											</div>
-										</div>
-										<div class="col col-sm-8 item-crit">
-											Critical
-										</div>
-									</div><!-- row -->
-
-									<div class="row">
-										<div class="col col-sm-2">
-										</div>
-										<div class="col col-sm-2">
-											<div class="form-check">
-												<input type="checkbox" checked class="form-check-input"
-												id="check-level-error">
-											</div>
-										</div>
-										<div class="col col-sm-8 item-err">
-											Error
-										</div>
-									</div><!-- row -->
-
-									<div class="row">
-										<div class="col col-sm-2">
-										</div>
-										<div class="col col-sm-2">
-											<div class="form-check">
-												<input type="checkbox" checked class="form-check-input"
-												id="check-level-warning">
-											</div>
-										</div>
-										<div class="col col-sm-8 item-warning">
-											Warning
-										</div>
-									</div><!-- row -->
-
-									<div class="row">
-										<div class="col col-sm-2">
-										</div>
-										<div class="col col-sm-2">
-											<div class="form-check">
-												<input type="checkbox" checked class="form-check-input"
-												id="check-level-notice">
-											</div>
-										</div>
-										<div class="col col-sm-8 item-notice">
-											Notice
-										</div>
-									</div><!-- row -->
-
-									<div class="row">
-										<div class="col col-sm-2">
-										</div>
-										<div class="col col-sm-2">
-											<div class="form-check">
-												<input type="checkbox" checked class="form-check-input"
-												id="check-level-info">
-											</div>
-										</div>
-										<div class="col col-sm-8 item-info">
-											Info
-										</div>
-									</div><!-- row -->
-
-									<div class="row">
-										<div class="col col-sm-2">
-										</div>
-										<div class="col col-sm-2">
-											<div class="form-check">
-												<input type="checkbox" checked class="form-check-input"
-												id="check-level-debug">
-											</div>
-										</div>
-										<div class="col col-sm-8 item-debug">
-											Debug
-										</div>
-									</div><!-- row -->
-
-								</div> <!-- container -->
-								<br />
-
-
-							</div>
-						</div>
-					</div>
-					<div class="card">
-						<div class="card-header" role="tab" id="headingTwo">
-							<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-								<h5>Processes</h5>
-							</a>
-						</div>
-						<div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
-
-
-
-
-							<div class="card-block">
-								<p id="process-list">loading ,,,</p>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<br />
-
+				<h5>Journal Filter</h5>
 				<form>
 					<div class="form-group">
 						<input type="text" class="form-control" id="logfilter"
@@ -264,16 +106,8 @@
 				</form>
 
 				<hr />
-				<a type="button" class="btn btn-secondary btn-light btn-sm" href="download/journal-short" download="journal-syslog.txt">
-          Download Logs (syslog)
-        </a>
 
-        <a type="button" class="btn btn-secondary btn-light btn-sm" href="download/journal-json" download="journal.json">
-          Download Logs (json)
-        </a>
-
-				<hr />
-
+				<h5>Synchronization</h5>
 				<div class="btn-group btn-group-toggle" data-toggle="buttons">
 					<label class="btn btn-secondary active btn-sm btn-light">
 						<input type="radio" name="options" id="option1"
@@ -287,6 +121,7 @@
 
 				<hr />
 
+				<h5>View</h5>
 				<div class="btn-group btn-group-toggle" data-toggle="buttons">
 					<label class="btn btn-secondary active btn-sm btn-light">
 						<input type="radio" name="options" id="toggle-view-extended"
@@ -297,6 +132,29 @@
 						autocomplete="off"> Dense View
 					</label>
 				</div>
+
+				<hr />
+				<h5>Journal Download</h5>
+				<a type="button" class="btn btn-secondary btn-light btn-sm" href="download/journal-short" download="journal-syslog.txt">
+          Download Logs (syslog)
+        </a>
+        <a type="button" class="btn btn-secondary btn-light btn-sm" href="download/journal-json" download="journal.json">
+          Download Logs (json)
+        </a>
+
+
+				<hr />
+				<h5>Legend</h5>
+				<b>Priority Color Coding</b><br />
+				<span class="item-emerg">&nbsp;</span> Emergency<br />
+				<span class="item-alert">&nbsp;</span> Alert<br />
+				<span class="item-crit">&nbsp;</span> Critical<br />
+				<span class="item-err">&nbsp;</span> Error<br />
+				<span class="item-warning">&nbsp;</span> Warning<br />
+				<span class="item-notice">&nbsp;</span> Notice<br />
+				<span class="item-info">&nbsp;</span> Info<br />
+				<span class="item-debug">&nbsp;</span> Debug<br />
+
 
 
 			</div> <!-- col -->
