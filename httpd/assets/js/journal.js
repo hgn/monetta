@@ -238,11 +238,6 @@ function processJournalEntriesData(data) {
     redrawJournalList();
 }
 
-function processJournalEntryData(data) {
-  journalSaveNewEntry(data);
-  redrawJournalList();
-}
-
 function filter_processing(filter_word, journalEntry) {
 	// -1 corrupt - ignore, go on
 	// 0: filter do not apply (pid:100 != 202)
@@ -454,9 +449,7 @@ function redrawJournalList() {
 
 function wsOnMessage(event) {
 	var jdata = JSON.parse(event.data);
-	if ('data-log-entry' in jdata) {
-		processJournalEntryData(jdata['data-log-entry']);
-	} else if ('data-log-entries' in jdata) {
+	if ('data-log-entries' in jdata) {
 		processJournalEntriesData(jdata['data-log-entries']);
 	} else {
 		console.log("data not handled");

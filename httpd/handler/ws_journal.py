@@ -64,7 +64,7 @@ class JournalHandler(object):
                 eline = line.decode(locale.getpreferredencoding(False))
                 d = json.loads(eline)
                 data = dict()
-                data['data-log-entry'] = d
+                data['data-log-entries'] = [d]
                 try:
                     ret = self.ws.send_json(data)
                 except RuntimeError:
