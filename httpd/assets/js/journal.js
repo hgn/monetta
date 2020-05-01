@@ -93,11 +93,11 @@ function journalRealTimeToHuman(time) {
 	// which is fine for now
 	var date = new Date(time / 1000);
 
-	var year = date.getFullYear();
-	var month = date.getMonth() + 1;
-	var day = date.getDate();
+	var year = date.getUTCFullYear();
+	var month = date.getUTCMonth() + 1;
+	var day = date.getUTCDate();
 
-	var hours = addZero(date.getHours(), 2);
+	var hours = addZero(date.getUTCHours(), 2);
 	var minutes = addZero(date.getMinutes(), 2);
 	var seconds = addZero(date.getSeconds(), 2);
 	var milliseconds = addZero(date.getMilliseconds(), 3);
@@ -142,12 +142,9 @@ function journalSaveNewEntry(entry) {
 
 	// time
 	var realtime = "error";
-	if ('__REALTIME_TIMESTAMP' in entry) {
-		realtime = journalRealTimeToHuman(entry['__REALTIME_TIMESTAMP']);
-	}
-
 	var timestamp = new Date(2000, 1, 1);
 	if ('__REALTIME_TIMESTAMP' in entry) {
+		realtime = journalRealTimeToHuman(entry['__REALTIME_TIMESTAMP']);
 		timestamp = new Date(entry['__REALTIME_TIMESTAMP'] / 1000);
 	}
 
@@ -377,6 +374,50 @@ function is_filtered(journalEntry) {
 	return true;
 }
 
+var journalInfoDb = new Object();
+
+function journalInfoResetDb() {
+	journalInfoDb.entries = 0;
+	journalInfoDb.first_ts = 0;
+	journalInfoDb.last_ts = 0;
+}
+
+function dateDiff(date1, date2) {
+    var diff = (date2 - date1) / 1000;
+    diff = Math.abs(Math.floor(diff));
+
+    var days = Math.floor(diff/(24*60*60));
+    var leftSec = diff - days * 24*60*60;
+
+    var hrs = Math.floor(leftSec/(60*60));
+    var leftSec = leftSec - hrs * 60*60;
+
+    var min = Math.floor(leftSec/(60));
+    var leftSec = leftSec - min * 60;
+
+    return "" + days + "d, " + hrs + "h, " + min + "m, " + leftSec + "s";
+}
+
+function journalInfoUpdateDb(entry) {
+	journalInfoDb.entries += 1;
+	if (journalInfoDb.last_ts == 0)
+		journalInfoDb.last_ts = entry.timestamp; 
+	journalInfoDb.first_ts = entry.timestamp;
+}
+
+function journalInfoResetRedraw() {
+	var str = "";
+	var text_field = document.getElementById("journal-info");
+
+	if (journalInfoDb.entries != 0) {
+		str = "Entries displayed: <b>" + journalInfoDb.entries + "</b><br />" +
+					"Last: <b>" + journalInfoDb.last_ts.toUTCString() + "</b><br />" +
+					"First: <b>" + journalInfoDb.first_ts.toUTCString() + "</b><br />" +
+			    "Time Delta: <b>" + dateDiff(journalInfoDb.first_ts, journalInfoDb.last_ts) + "</b>";
+	}
+	text_field.innerHTML = str;
+}
+
 function redrawJournalListExtended() {
 	var newstr = ""
 	for (var i = journalEntryArray.length - 1; i > 0; i--) {
@@ -385,6 +426,9 @@ function redrawJournalListExtended() {
 		// no fancy regex, etc.
 		if (is_filtered(journalEntryArray[i]))
 			continue
+
+		journalInfoUpdateDb(journalEntryArray[i]);
+
 		newstr = newstr
 			+ '<a href="#myModal" data-toggle="modal" class="list-group-item list-group-item-action flex-column align-items-start '
 		  + itemSelectPriorityColor(journalEntryArray[i]) + '">'
@@ -423,6 +467,9 @@ function redrawJournalListDense() {
 	for (var i = journalEntryArray.length - 1; i > 0; i--) {
 		if (is_filtered(journalEntryArray[i]))
 			continue
+
+		journalInfoUpdateDb(journalEntryArray[i]);
+
     var delta_to_pref = timestampDeltaCalc(journalEntryArray[i].timestamp);
 		newstr = newstr
 			+ '<a href="#myModal" data-toggle="modal" class="nullspacer list-group-item list-group-item-action flex-column align-items-start '
@@ -440,11 +487,13 @@ function redrawJournalListDense() {
 
 
 function redrawJournalList() {
+	journalInfoResetDb();
   if (journal_view == 'extended') {
     redrawJournalListExtended();
   } else {
     redrawJournalListDense();
   }
+	journalInfoResetRedraw();
 }
 
 function wsOnMessage(event) {
