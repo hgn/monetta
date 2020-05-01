@@ -17,6 +17,8 @@ $(document).ready(function() {
 	cookieLoadView();
 	initButtons();
 	registerFilter();
+
+	document.getElementById("logfilter").focus();
 });
 
 function registerFilter() {
