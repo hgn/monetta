@@ -417,13 +417,8 @@ function redrawJournalListDense() {
   timestampDeltaInit();
 	var newstr = ""
 	for (var i = journalEntryArray.length - 1; i > 0; i--) {
-	  // if a filter was set we ignore all messages not
-		// matching the string, we using includes() here,
-		// no fancy regex, etc.
-		if (filter != "") {
-			if (!journalEntryArray[i].message.toLowerCase().includes(filter.toLowerCase()))
-				continue
-		}
+		if (is_filtered(journalEntryArray[i]))
+			continue
     var delta_to_pref = timestampDeltaCalc(journalEntryArray[i].timestamp);
 		newstr = newstr
 			+ '<a href="#myModal" data-toggle="modal" class="nullspacer list-group-item list-group-item-action flex-column align-items-start '
