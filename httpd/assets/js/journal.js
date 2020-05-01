@@ -220,13 +220,14 @@ function itemSelectPriorityColor(entry) {
 }
 
 function journalEntryConstructSubtitle(entry) {
-	var str = "comm: " + entry.comm
-		+ ' / priority: ' + entry.priority
-	  + ' / pid: ' +  entry.pid
-	  + ' / uid: ' +  entry.uid
-	  + ' / gid: ' +  entry.gid
-	  + ' / cmdline: ' +  entry.cmdline
-	  + ' / transport: ' +  entry.transport;
+	var str = "comm: <b>" + entry.comm
+		+ '</b> / priority: <b>' + entry.priority
+	  + '</b> / pid: <b>' +  entry.pid
+	  + '</b> / uid: <b>' +  entry.uid
+	  + '</b> / gid: <b>' +  entry.gid
+	  + '</b> / cmdline: <b>' +  entry.cmdline
+	  + '</b> / transport: <b>' +  entry.transport
+	  + '</b>';
 	return str
 }
 
