@@ -212,7 +212,7 @@ function itemSelectPriorityColor(entry) {
 }
 
 function journalEntryConstructSubtitle(entry) {
-	var str = "com: " + entry.comm
+	var str = "comm: " + entry.comm
 		+ ' / prio: ' + entry.priority
 	  + ' / pid: ' +  entry.pid
 	  + ' / uid: ' +  entry.uid
@@ -234,16 +234,90 @@ function processJournalEntryData(data) {
   redrawJournalList();
 }
 
+function filter_processing(filter_word, journalEntry) {
+	// -1 corrupt - ignore, go on
+	// 0: filter do not apply (pid:100 != 202)
+	// 1: filter matches
+
+	if (filter_word.includes(":")) {
+		// complex filter
+		var token = filter_word.split(":");
+		if (token.length != 2) {
+			// filter_word seems corrupt (e.g. "pid:123:garbage")
+			return -1;
+		}
+		const key = token[0].toLowerCase();
+		const value = token[1].toLowerCase();
+		switch (key) {
+			case "pid":
+				break
+			case "priority":
+				if (journalEntry.priority.toLowerCase().includes(value.toLowerCase())) {
+					// matched
+					return 0;
+				} else {
+					// unmatched
+					return 1;
+				}
+			case "comm":
+				if (journalEntry.comm.toLowerCase().includes(value.toLowerCase())) {
+					// matched
+					return 0;
+				} else {
+					// unmatched
+					return 1;
+				}
+			default:
+				// unknown, unhandled key
+				return -1;
+				break;
+		}
+	} else {
+		// simple word filter
+		// we do a substring search, probably the most
+		// usefull thing
+		console.log(filter_word);
+		if (journalEntry.message.toLowerCase().includes(filter_word.toLowerCase()))
+			return 0;
+		return 1;
+	}
+}
+
+function is_filtered(journalEntry) {
+	if (filter == "") {
+		// short circuit, early return
+		return false;
+	}
+
+	var filter_words = filter.split(" ");
+	console.log(filter_words);
+  for (const filter_word of filter_words) {
+		if (filter_word == "")
+			continue;
+	
+		const result = filter_processing(filter_word, journalEntry);
+		switch (result) {
+			case -1:
+				break
+			case 0:
+				return false;
+				break
+			case 1:
+				break
+		}
+	}
+
+	return true;
+}
+
 function redrawJournalListExtended() {
 	var newstr = ""
 	for (var i = journalEntryArray.length - 1; i > 0; i--) {
 	  // if a filter was set we ignore all messages not
 		// matching the string, we using includes() here,
 		// no fancy regex, etc.
-		if (filter != "") {
-			if (!journalEntryArray[i].message.toLowerCase().includes(filter.toLowerCase()))
-				continue
-		}
+		if (is_filtered(journalEntryArray[i]))
+			continue
 		newstr = newstr
 			+ '<a href="#myModal" data-toggle="modal" class="list-group-item list-group-item-action flex-column align-items-start '
 		  + itemSelectPriorityColor(journalEntryArray[i]) + '">'
