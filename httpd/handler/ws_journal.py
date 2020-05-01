@@ -52,7 +52,7 @@ class JournalHandler(object):
         # will prevent this from happen, at least at the test
         # platform ... --hgn
         await asyncio.sleep(0.2)
-        cmd = ["journalctl", "-n", "0",  "-f", "-o", "json"]
+        cmd = ["journalctl", "--utc", "-n", "0",  "-f", "-o", "json"]
         self.p = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
         while True:
             async for line in self.p.stdout:
@@ -74,7 +74,7 @@ class JournalHandler(object):
         return await self.p.wait()
 
     async def sync_history(self):
-        cmd = "journalctl -q -n 500 -o json"
+        cmd = "journalctl --utc -q -n 500 -o json"
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output, _ = p.communicate()
         p_status = p.wait()
@@ -87,33 +87,6 @@ class JournalHandler(object):
         journal_data = json.loads(data_list)
         data = dict()
         data['data-log-entries'] = journal_data
-        await self.ws.send_json(data)
-
-    async def sync_info(self):
-        """
-        Just for process names, queries the last 50.000 entries
-        in the database, compromise between available commands and
-        time to query a large database.
-        FIXME: ideal, during programstart a global process list
-        is created which is updated all the time during journalctl
-        reads.
-        """
-        cmd = "journalctl -n 50000 -q -o json".split()
-        process = await asyncio.create_subprocess_exec(
-                    *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-                    )
-        stdout, stderr = await process.communicate()
-        if process.returncode != 0:
-            return
-        output = stdout.decode("utf-8").rstrip()
-        set_comm = set()
-        for line in output.split("\n"):
-            data = json.loads(line)
-            if '_COMM' in data:
-                set_comm.add(data['_COMM'])
-        data = dict()
-        data['data-info'] = dict()
-        data['data-info']['list-comm'] = list(set_comm)
         await self.ws.send_json(data)
 
 def log_peer(request):
@@ -138,8 +111,6 @@ async def handle(request):
                 await ws.close()
                 await jh.shutdown()
                 return ws
-            if msg.data == 'info':
-                await jh.sync_info()
             elif msg.data == 'history':
                 await jh.sync_history()
             elif msg.data == 'journal-sync-start':
