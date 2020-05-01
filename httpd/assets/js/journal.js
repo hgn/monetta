@@ -249,23 +249,78 @@ function filter_processing(filter_word, journalEntry) {
 		const key = token[0].toLowerCase();
 		const value = token[1].toLowerCase();
 		switch (key) {
+			case "uid":
+				if (journalEntry.uid == value) {
+					return 1;
+				} else {
+					return 0;
+				}
+				break
+			case "gid":
+				if (journalEntry.gid == value) {
+					return 1;
+				} else {
+					return 0;
+				}
+				break
 			case "pid":
+				if (journalEntry.pid == value) {
+					return 1;
+				} else {
+					return 0;
+				}
+				break
+			case "timestamp":
+				// we do incremental search, just to beautify
+				// the user experience, it slowly filters out more entry
+				// the more the user types in
+				if (journalEntry.timestamp.toLowerCase().includes(value.toLowerCase())) {
+					return 1;
+				} else {
+					return 0;
+				}
+				break
+			case "realtime":
+				// we do incremental search, just to beautify
+				// the user experience, it slowly filters out more entry
+				// the more the user types in
+				if (journalEntry.realtime.toLowerCase().includes(value.toLowerCase())) {
+					return 1;
+				} else {
+					return 0;
+				}
+				break
+			case "transport":
+				// we do incremental search, just to beautify
+				// the user experience, it slowly filters out more entry
+				// the more the user types in
+				if (journalEntry.transport.toLowerCase().includes(value.toLowerCase())) {
+					return 1;
+				} else {
+					return 0;
+				}
+				break
+			case "cmdline":
+				// we do incremental search, just to beautify
+				// the user experience, it slowly filters out more entry
+				// the more the user types in
+				if (journalEntry.cmdline.toLowerCase().includes(value.toLowerCase())) {
+					return 1;
+				} else {
+					return 0;
+				}
 				break
 			case "priority":
 				if (journalEntry.priority.toLowerCase().includes(value.toLowerCase())) {
-					// matched
-					return 0;
-				} else {
-					// unmatched
 					return 1;
+				} else {
+					return 0;
 				}
 			case "comm":
 				if (journalEntry.comm.toLowerCase().includes(value.toLowerCase())) {
-					// matched
-					return 0;
-				} else {
-					// unmatched
 					return 1;
+				} else {
+					return 0;
 				}
 			default:
 				// unknown, unhandled key
@@ -276,21 +331,25 @@ function filter_processing(filter_word, journalEntry) {
 		// simple word filter
 		// we do a substring search, probably the most
 		// usefull thing
-		console.log(filter_word);
-		if (journalEntry.message.toLowerCase().includes(filter_word.toLowerCase()))
-			return 0;
-		return 1;
+		if (journalEntry.message.toLowerCase().includes(filter_word.toLowerCase())) {
+			return 1;
+		}
+		return 0;
 	}
 }
 
+/**
+ * Returns false if line is not to be filtered,
+ * true otherwise
+ */
 function is_filtered(journalEntry) {
-	if (filter == "") {
-		// short circuit, early return
+	var all_filters = [];
+
+	// short circuit, early return
+	if (filter == "")
 		return false;
-	}
 
 	var filter_words = filter.split(" ");
-	console.log(filter_words);
   for (const filter_word of filter_words) {
 		if (filter_word == "")
 			continue;
@@ -300,13 +359,17 @@ function is_filtered(journalEntry) {
 			case -1:
 				break
 			case 0:
-				return false;
-				break
+				all_filters.push(false);
+				break;
 			case 1:
-				break
+				all_filters.push(true);
+				break;
 		}
 	}
 
+	if (!all_filters.includes(false)) {
+		return false;
+	}
 	return true;
 }
 
