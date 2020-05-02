@@ -430,9 +430,9 @@ function redrawJournalListExtended() {
 		journalInfoUpdateDb(journalEntryArray[i]);
 
 		newstr = newstr
-			+ '<a href="#myModal" data-toggle="modal" class="list-group-item list-group-item-action flex-column align-items-start '
+			+ '<a href="#myModal" data-toggle="modal" class="list-group-item list-group-item-action flex-column align-items-start'
 		  + itemSelectPriorityColor(journalEntryArray[i]) + '">'
-		  + '<div class="d-flex w-100 justify-content-between"> <h5 class="mb-1">'
+		  + '<div class="d-flex w-100 justify-content-between highlight"> <h5 class="mb-1">'
 			+ journalEntryArray[i].message
 		  + '</h5><small>'
 		  + journalEntryArray[i].realtime
@@ -474,7 +474,7 @@ function redrawJournalListDense() {
 		newstr = newstr
 			+ '<a href="#myModal" data-toggle="modal" class="nullspacer list-group-item list-group-item-action flex-column align-items-start '
 		  + itemSelectPriorityColor(journalEntryArray[i]) + '">'
-		  + '<div class="d-flex w-100 justify-content-between"> <h5 class="mb-1">'
+		  + '<div class="d-flex w-100 justify-content-between highlight"> <h5 class="mb-1">'
 			+ journalEntryArray[i].message
 		  + '</h5><small>'
 		  + delta_to_pref

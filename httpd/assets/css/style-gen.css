@@ -124,3 +124,18 @@ span.navback.navbar-text {
   padding-top: 5px;
   padding-bottom: 5px;
 }
+
+@-webkit-keyframes yellow-fade {
+   0% {background: #faf8ed;}
+   100% {background: none;}
+}
+
+@keyframes yellow-fade {
+   0% {background: #faf8ed;}
+   100% {background: none;}
+}
+
+.highlight {
+   -webkit-animation: yellow-fade 1s ease-in 1;
+   animation: yellow-fade 1s ease-in 1;
+}
