@@ -86,11 +86,21 @@
 					<h5 class="card-header">
 						Filesystem
 					</h5>
+
 					<div class="card-body">
 
+						<div id="file-info"></div>
+
 						<table class="table table-borderless table-sm table-hover table-striped">
-						<div id="fs-table">
-						</div>
+							<thead><tr>
+                  <th>Path</th>
+                  <th>Size</th>
+                  <th>User</th>
+                  <th>Group</th>
+                  <th>Mode</th>
+                  <th>Modification Time</th>
+                </tr> </thead>
+							<tbody id="fs-table"></tbody>
 						</table>
 
 					</div>

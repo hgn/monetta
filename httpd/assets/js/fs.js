@@ -25,85 +25,66 @@ async function FileQuery(path)
 }
 
 
-function RestQueryDirectory(root_directory)
+function tableContent(entry)
 {
-	let url = '/api/v1/fs?mode=filesg&path=' + root_directory;
-  fetch(url)
-		.then(function(response) {
-			return response.json()
-		})
-		.then(data => {
-			if (data) {
-				updateFSTable(root_directory, data);
-			}
-		})
-		.catch(function(error) {
-			console.log('Request failed', error)
-		});
+	return "<tr><td>" + entry.path + "</td>" +
+		'<td>' + entry.size + '</td>' +
+		'<td>' + entry.user + '</td>' +
+		'<td>' + entry.group + '</td>' +
+		'<td>' + entry.mode + '</td>' +
+		'<td>' + entry.mtime + '</td>' +
+    "</tr>";
 }
 
-function tableHeader(root_directory)
-{
-	var str;
-	str = "<b>" + root_directory + "</b>";
-	str += '<table class="table table-borderless table-sm table-hover table-striped">  <thead><tr>';
-	str += '<th>Path</th>'
-	str += '<th>Filename</th>'
-	str += '<th>Size</th>'
-	str += '<th>User</th>'
-	str += '<th>Group</th>'
-	str += '<th>Mode</th>'
-	str += '<th>MTime</th>'
-	str += '</tr> </thead> <tbody> ';
-	return str
-}
-
-function tableContent(data)
-{
-	var str = "";
-		str += '<tr>';
-		str += '<td>' + data['path'] + '</td>';
-		/*
-		str += '<td>' + entry['name'] + '</td>';
-		str += '<td>' + entry['size'] + '</td>';
-		str += '<td>' + entry['user'] + '</td>';
-		str += '<td>' + entry['group'] + '</td>';
-		str += '<td>' + entry['mode'] + '</td>';
-		str += '<td>' + entry['mtime'] + '</td>';
-		*/
-		str += '</tr>';
-	return str;
-}
-
-function tableFooter()
-{
-	return '</tbody> </table>';
-}
 
 function tableInsert(data)
 {
-	let output = document.getElementById("fs-table");
-	output.innerHTML += data;
+	document.getElementById("fs-table").innerHTML += data;
 }
 
 function updateFSTable(root_directory, data)
 {
-	let entry;
+	tableInsert(tableContent(data));
+}
 
-	entry += tableContent(data);
-	tableInsert(entry);
+var no_files = 0;
+var bytes_files = 0;
+var largest_file_size = 0;
+var largest_file_path = 0;
+
+function bytesToSize(bytes)
+{
+   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+   if (bytes == 0) return '0 Byte';
+   var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+   return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+}
+
+function updateFileInfo(entry)
+{
+	no_files += 1;
+	bytes_files += entry.size;
+  if (largest_file_size < entry.size) {
+    largest_file_size = entry.size;
+    largest_file_path = entry.path;
+  }
+	let data  = "Files & Directoroes: " + no_files + "<br />";
+      data += "Size: " + bytesToSize(bytes_files) + "<br />";
+      data += "Largest File " + largest_file_path + ", Size: " + bytesToSize(largest_file_size) + "<br />";
+	document.getElementById("file-info").innerHTML = data;
 }
 
 async function ProcessFileQuery(data)
 {
 	for(const entry of data){
 		if (entry.type == 'directory') {
+			updateFSTable('/', entry);
 			let query = await FileQuery(entry.path)
-			await ProcessFileQuery(data)
+			await ProcessFileQuery(query)
 		} else {
 			updateFSTable('/', entry);
 		}
-		console.log(entry);		
+		updateFileInfo(entry);
 	}
 }
 
