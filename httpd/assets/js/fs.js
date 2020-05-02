@@ -94,16 +94,17 @@ function updateFSTable(root_directory, data)
 	tableInsert(entry);
 }
 
-function ProcessFileQuery(data)
+async function ProcessFileQuery(data)
 {
-	data.forEach(function(entry) {
+	for(const entry of data){
 		if (entry.type == 'directory') {
-			FileQuery(entry.path).then(data => ProcessFileQuery(data));
+			let query = await FileQuery(entry.path)
+			await ProcessFileQuery(data)
 		} else {
 			updateFSTable('/', entry);
 		}
-		console.log(entry);
-	});
+		console.log(entry);		
+	}
 }
 
 $(document).ready(function() {
