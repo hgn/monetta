@@ -74,7 +74,7 @@ class JournalHandler(object):
         return await self.p.wait()
 
     async def sync_history(self):
-        cmd = "journalctl --utc -q -n 500 -o json"
+        cmd = "journalctl --utc -q -n 1500 -o json"
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         output, _ = p.communicate()
         p_status = p.wait()
